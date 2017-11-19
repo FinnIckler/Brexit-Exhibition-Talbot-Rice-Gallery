@@ -4,8 +4,8 @@
     <head>
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <style>
-#viz {   
-    width: 100%;    
+#viz {
+    width: 100%;
     height: 700px;
 }
 .y-axis line {
@@ -56,7 +56,7 @@ var background = svg.append("rect")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .attr("transform", "translate(" + (-margin.left) + "," + (-margin.top) + ")")
-    .attr("fill", "black")
+    .attr("fill", "black");
 
 
 var radius = 2;
@@ -67,9 +67,9 @@ var highlightColor = "magenta";
 
 var updateDuration = 1500;
 
-var activeForces = []
+var activeForces = [];
 
-var counter = 0
+var counter = 0;
 
 var barYactive = false;
 
@@ -97,7 +97,7 @@ d3.csv("/dummydata.csv", function(error, data) {
 
         d.fade = 1;
         d.color = defaultColor
-        
+
     });
 
 
@@ -145,10 +145,10 @@ d3.csv("/dummydata.csv", function(error, data) {
 
     function baseSim(alphaMin) {
         /* creates basic petri dish of nodes */
-        
+
         removeForces()
         radius = 2
-        
+
         simulation
             .stop()
             .force("charge", d3.forceManyBody().strength(-2))
@@ -159,28 +159,28 @@ d3.csv("/dummydata.csv", function(error, data) {
             .alpha(1)
             .restart();
         activeForces.push("charge", "x", "y", "collide")
-        
-        
+
+
         return simulation
-        
+
     }
 
 
     function breakdown(breakdownObjects) {
         /* breaks down nodes into groups centers of gravity defined by x and y functions */
-        
+
         var radius = 2;
 
         removeForces();
 
         for (i=0; i<breakdownObjects.length; i++) {
             switch(breakdownObjects[i]["type"]) {
-                
+
             case "xy":
                 var customX = d3.forceX(breakdownObjects[i]["breakX"]).strength(breakdownObjects[i]["strengthX"])
                 var customY = d3.forceY(breakdownObjects[i]["breakY"]).strength(breakdownObjects[i]["strengthY"])
-                
-                
+
+
                 simulation
                     .force("x" + i.toString(), customX)
                     .force("y" + i.toString(), customY)
@@ -188,7 +188,7 @@ d3.csv("/dummydata.csv", function(error, data) {
                 activeForces.push("y" + i.toString())
 
                 break;
-                
+
             case "charge":
                 var customCharge = isolate(d3.forceManyBody(), breakdownObjects[i]["filter"]).strength(breakdownObjects[i]["strength"])
                 simulation
@@ -207,21 +207,21 @@ d3.csv("/dummydata.csv", function(error, data) {
 
         activeForces.push("collide");
 
-        
+
         return simulation
     };
 
 
     function breakout(filterIn, filterOut) {
         /* breakout a selection of nodes by lifting them out from petri dish to a radial circle and fading out the non-selected nodes */
-        
+
         removeForces();
-        
+
         var customRadial = isolate(d3.forceRadial(width * 0.7, width / 2, height / 2), filterOut).strength(0.12);
 
-        
+
         var customCenter = isolate(d3.forceCenter(width / 2, height / 2), filterIn);
-        
+
         simulation.stop()
             .force("center", customCenter)
             .force("radial", customRadial)
@@ -230,12 +230,12 @@ d3.csv("/dummydata.csv", function(error, data) {
             .alphaMin(0.6)
             .restart()
             .on("end", null);
-        
+
         activeForces.push("center", "radial", "collide")
-        
-        
+
+
         return simulation
-        
+
     };
 
     var barYaxisDOM; // defined here in order to be accessible for removal by resetForces function
@@ -243,18 +243,18 @@ d3.csv("/dummydata.csv", function(error, data) {
     function barchartY(filterFunction, accessor) {
         /* creates a bar chart on the left hand side from values (not a force function!) */
         removeForces();
-        
+
         var barY = d3.scaleLinear()
             .domain(d3.extent(data.filter(filterFunction), function(d) {
                 return +accessor(d) }))
             .range([height, 0])
-        
+
         var barYaxis = d3.axisLeft(barY);
-        
+
         var xValObj = {};
-        
+
         simulation.stop();
-        
+
         radius = 2;
 
         if (width > height) {
@@ -285,11 +285,11 @@ d3.csv("/dummydata.csv", function(error, data) {
                     return x
                 }
             });
-        
+
         barYaxisDOM = svg.append("g")
             .attr("class", "y-axis")
             .call(barYaxis);
-        
+
         barYactive = true;
     };
 
@@ -299,14 +299,14 @@ d3.csv("/dummydata.csv", function(error, data) {
 
         var xFunction = function(d) {
             var boyBool = d.kon == "man";
-            
+
             return boyBool ? width / 3 : (width / 3) * 2
         }
         var yFunction = function(d) { return height/2; }
 
         var breakdownObjs = [{"type": "xy", "breakX": xFunction, "strengthX": 0.15, "breakY": yFunction, "strengthY": 0.15}, {"type": "charge", "filter": function(d) { return d; },"strength": -1.5}]
 
-        
+
         breakdown(breakdownObjs)
 
     }
@@ -325,7 +325,7 @@ d3.csv("/dummydata.csv", function(error, data) {
     function breakoutIncome() {
         var filterIn = function(d) { return d.inkomstgrupp != null }
         var filterOut = function(d) { return d.inkomstgrupp == null }
-        
+
         breakout(filterIn, filterOut)
     }
 
@@ -343,9 +343,9 @@ d3.csv("/dummydata.csv", function(error, data) {
         var xyBreakdown = {"type": "xy", "breakX": xFunction, "filterX": function(d) { return d; }, "strengthX": 0.24, "breakY": yFunction, "filterY": function(d) { return d; }, "strengthY": 0.18}
 
         var chargeBreakdown = {"type": "charge", "filter": function(d) { return d.inkomstgrupp != null; }, "strength": -1.5}
-        
+
         var chargeBreakdownNull = {"type": "charge", "filter": function(d) { return d.inkomstgrupp == null; }, "strength": -1.5}
-        
+
         return breakdown([xyBreakdown, chargeBreakdown, chargeBreakdownNull])
     }
 
@@ -360,16 +360,16 @@ d3.csv("/dummydata.csv", function(error, data) {
                 .range([height-75, 0+75])
             return d.kapitalgrupp != null ? yScale(d.kapitalgrupp) : d.y
         };
-        
+
         var xyBreakdown = {"type": "xy", "breakX": xFunction, "filterX": function(d) { return d; }, "strengthX": 0.24, "breakY": yFunction, "filterY": function(d) { return d; }, "strengthY": 0.18}
 
         var chargeBreakdown = {"type": "charge", "filter": function(d) {
             return d.kapitalgrupp != null; }, "strength": -1.5}
-        
+
         var chargeBreakdownNull = {"type": "charge", "filter": function(d) { return d.kapitalgrupp == null; }, "strength": -1.5}
-        
+
         breakdown([xyBreakdown, chargeBreakdown, chargeBreakdownNull])
-        
+
     }
 
     function moss() {
@@ -402,12 +402,12 @@ d3.csv("/dummydata.csv", function(error, data) {
         var xyBreakdown = {"type": "xy", "breakX": xFunction, "filterX": function(d) { return d; }, "strengthX": 0.3, "breakY": yFunction, "filterY": function(d) { return d; }, "strengthY": 0.2}
 
         var chargeBreakdown = {"type": "charge", "filter": function(d) { return d.roll != null; }, "strength": -1.5}
-        
+
         var chargeBreakdownNull = {"type": "charge", "filter": function(d) { return d.roll == null; }, "strength": -1.5}
-        
-        
+
+
         breakdown([xyBreakdown, chargeBreakdown, chargeBreakdownNull])
-        
+
     }
 
 
@@ -416,7 +416,7 @@ d3.csv("/dummydata.csv", function(error, data) {
 
         var filterIn = function(d) { return d.land == "Sverige" };
         var filterOut = function(d) { return d.land != "Sverige" };
-        
+
         breakout(filterIn, filterOut).on("end", function() {
 
             var xFunction = function(d) {
@@ -429,12 +429,12 @@ d3.csv("/dummydata.csv", function(error, data) {
             var xyBreakdown = {"type": "xy", "breakX": xFunction, "filterX": function(d) { return d; },  "strengthX": 0.1, "breakY": yFunction, "filterY": function(d) { return d; }, "strengthY": 0.1};
 
             var chargeBreakdown = {"type": "charge", "filter": function(d) { return d.land == "Sverige"; }, "strength": -1.5};
-            
+
 
             breakdown([xyBreakdown, chargeBreakdown])
         })
 
-        
+
     }
 
     /* helper functions */
@@ -442,7 +442,7 @@ d3.csv("/dummydata.csv", function(error, data) {
     function highlight(filterFunction) {
         data.forEach(function(d) {
             d.color = filterFunction(d) ? highlightColor : defaultColor
-        })                    
+        })
     }
 
     function fade(filterFunction) {
@@ -450,7 +450,7 @@ d3.csv("/dummydata.csv", function(error, data) {
             d.fade = filterFunction(d) ? 0 : 1
         })
     }
-    
+
     function removeForces() {
 
 
@@ -458,7 +458,7 @@ d3.csv("/dummydata.csv", function(error, data) {
             barYaxisDOM.remove()
             barYactive = false;
         }
-        
+
         for (i=0; i<activeForces.length; i++) {
             simulation
                 .force(activeForces[i], null)
@@ -529,7 +529,7 @@ d3.csv("/dummydata.csv", function(error, data) {
             updateNodes();
             triggerState = "base"
         }
-        
+
     }
 
     window._trigger2 = function() {
@@ -596,37 +596,37 @@ d3.csv("/dummydata.csv", function(error, data) {
     }
 
     window._trigger7 = function() {
-        
+
         var filterIn = function(d) { return d.inkomstgrupp != null }
         var filterOut = function(d) { return d.inkomstgrupp == null }
 
         if (triggerState == "base") {
-            
+
             highlight(filterOut)
             fade(filterOut)
             updateNodes()
-            
+
             breakout(filterIn, filterOut)
 
         } else {
             if (triggerState != "breakout") {
-                
+
                 highlight(filterOut)
                 fade(function(d) { return false })
                 updateNodes()
-                
+
                 baseSim(0.6).on("end", function(d) {
-                    
+
                     highlight(filterOut)
                     fade(filterOut)
                     updateNodes()
-                    
+
                     breakout(filterIn, filterOut)
                 })
             }
         }
         triggerState = "breakout"
-        
+
 
     }
 
@@ -640,7 +640,7 @@ d3.csv("/dummydata.csv", function(error, data) {
             triggerState = "income"
         }
         updateNodes()
-        
+
     }
 
     window._trigger9 = function() {
@@ -653,7 +653,7 @@ d3.csv("/dummydata.csv", function(error, data) {
             triggerState = "income"
         }
         updateNodes()
-        
+
 
 
     }
@@ -694,12 +694,12 @@ d3.csv("/dummydata.csv", function(error, data) {
             incomeGroup()
             triggerState = "income"
         }
-        
+
         updateNodes()
 
     }
 
-    window._trigger13 = function() {    
+    window._trigger13 = function() {
 
         highlight(function(d) { return d.inkomstgrupp == 4 && d.kon == "kvinna"; })
         fade(function(d) { return d.inkomstgrupp == null })
@@ -708,13 +708,13 @@ d3.csv("/dummydata.csv", function(error, data) {
             incomeGroup()
             triggerState = "income"
         }
-        
+
         updateNodes()
 
     }
 
     window._trigger14 = function() {
-        
+
         highlight(function(d) { return d.inkomstgrupp == 5; })
         fade(function(d) { return d.inkomstgrupp == null })
 
@@ -722,7 +722,7 @@ d3.csv("/dummydata.csv", function(error, data) {
             incomeGroup()
             triggerState = "income"
         }
-        
+
         updateNodes()
     }
 
@@ -734,12 +734,12 @@ d3.csv("/dummydata.csv", function(error, data) {
             capitalGroup()
             triggerState = "capital"
         }
-        
+
         updateNodes()
     }
 
     window._trigger16 = function() {
-        
+
         highlight(function(d) { return d.kapitalgrupp == 2 })
         fade(function(d) { return d.kapitalgrupp == null })
 
@@ -747,12 +747,12 @@ d3.csv("/dummydata.csv", function(error, data) {
             capitalGroup()
             triggerState = "capital"
         }
-        
+
         updateNodes()
     }
 
     window._trigger17 = function() {
-        
+
         highlight(function(d) { return d.kapitalgrupp == 3 })
         fade(function(d) { return d.kapitalgrupp == null })
 
@@ -760,7 +760,7 @@ d3.csv("/dummydata.csv", function(error, data) {
             capitalGroup()
             triggerState = "capital"
         }
-        
+
         updateNodes()
     }
 
@@ -778,7 +778,7 @@ d3.csv("/dummydata.csv", function(error, data) {
         highlight(filterFunction)
         fade(function(d) { return d.kapitalgrupp == null })
 
-        
+
         if (triggerState != "capital") {
             capitalGroup()
             triggerState = "capital"
@@ -796,7 +796,7 @@ d3.csv("/dummydata.csv", function(error, data) {
             capitalGroup()
             triggerState = "capital"
         }
-        
+
         updateNodes()
 
     }
@@ -815,7 +815,7 @@ d3.csv("/dummydata.csv", function(error, data) {
         highlight(filterFunction)
         fade(function(d) { return d.kapitalgrupp == null })
 
-        
+
         if (triggerState != "capital") {
             capitalGroup()
             triggerState = "capital"
@@ -832,7 +832,7 @@ d3.csv("/dummydata.csv", function(error, data) {
             capitalGroup()
             triggerState = "capital"
         }
-        
+
         updateNodes()
     }
 
@@ -859,11 +859,11 @@ d3.csv("/dummydata.csv", function(error, data) {
 
         }
         updateNodes()
-        
+
     }
 
     window._trigger24 = function() {
-        
+
         highlight(function(d) { return d.batchkod == "M" })
         fade(function(d) { return false; })
         updateNodes()
