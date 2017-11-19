@@ -56,7 +56,7 @@
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .attr("transform", "translate(" + (-margin.left) + "," + (-margin.top) + ")")
-            .attr("fill", "black")
+            .attr("fill", "black");
 
 
     var radius = 2;
@@ -67,39 +67,20 @@
 
     var updateDuration = 1500;
 
-    var activeForces = []
+    var activeForces = [];
 
-    var counter = 0
+    var counter = 0;
 
     var barYactive = false;
 
-    d3.csv("/dummydata.csv", function(error, data) {
+    d3.csv("brexit_dummy_data.csv", function(error, data) {
         if (error) throw error;
 
         data.forEach(function(d) {
-            if (d.roll == "") {
-                d.roll = null
-            }
-
-            if (d.inkomstgrupp == "") {
-                d.inkomstgrupp = null
-            } else {
-                d.inkomstgrupp = +d.inkomstgrupp
-            }
-
-            if (d.kapitalgrupp == "") {
-                d.kapitalgrupp = null
-            } else {
-                d.kapitalgrupp = +d.kapitalgrupp
-            }
-
-            d.alder = +d.alder;
-
             d.fade = 1;
             d.color = defaultColor
 
         });
-
 
         /* scales */
 
@@ -120,8 +101,7 @@
                 .on("tick", ticked);
 
 
-        initSim()
-
+        initSim();
         /* basic simulation functions */
 
         function initSim() {
@@ -146,8 +126,8 @@
         function baseSim(alphaMin) {
             /* creates basic petri dish of nodes */
 
-            removeForces()
-            radius = 2
+            removeForces();
+            radius = 2;
 
             simulation
                     .stop()
@@ -158,7 +138,7 @@
                     .alphaMin(alphaMin)
                     .alpha(1)
                     .restart();
-            activeForces.push("charge", "x", "y", "collide")
+            activeForces.push("charge", "x", "y", "collide");
 
 
             return simulation
@@ -184,16 +164,16 @@
                         simulation
                                 .force("x" + i.toString(), customX)
                                 .force("y" + i.toString(), customY)
-                        activeForces.push("x" + i.toString())
-                        activeForces.push("y" + i.toString())
+                        activeForces.push("x" + i.toString());
+                        activeForces.push("y" + i.toString());
 
                         break;
 
                     case "charge":
                         var customCharge = isolate(d3.forceManyBody(), breakdownObjects[i]["filter"]).strength(breakdownObjects[i]["strength"])
                         simulation
-                                .force("charge" + i.toString(), customCharge)
-                        activeForces.push("charge" + i.toString())
+                                .force("charge" + i.toString(), customCharge);
+                        activeForces.push("charge" + i.toString());
 
                         break;
                 }
@@ -209,7 +189,7 @@
 
 
             return simulation
-        };
+        }
 
 
         function breakout(filterIn, filterOut) {
@@ -231,12 +211,12 @@
                     .restart()
                     .on("end", null);
 
-            activeForces.push("center", "radial", "collide")
+            activeForces.push("center", "radial", "collide");
 
 
             return simulation
 
-        };
+        }
 
         var barYaxisDOM; // defined here in order to be accessible for removal by resetForces function
 
@@ -247,7 +227,7 @@
             var barY = d3.scaleLinear()
                     .domain(d3.extent(data.filter(filterFunction), function(d) {
                         return +accessor(d) }))
-                    .range([height, 0])
+                    .range([height, 0]);
 
             var barYaxis = d3.axisLeft(barY);
 
@@ -291,7 +271,7 @@
                     .call(barYaxis);
 
             barYactive = true;
-        };
+        }
 
         /* simulation functions specific for dataset */
 
@@ -301,11 +281,26 @@
                 var boyBool = d.kon == "man";
 
                 return boyBool ? width / 3 : (width / 3) * 2
-            }
-            var yFunction = function(d) { return height/2; }
+            };
+            var yFunction = function(d) { return height/2; };
 
             var breakdownObjs = [{"type": "xy", "breakX": xFunction, "strengthX": 0.15, "breakY": yFunction, "strengthY": 0.15}, {"type": "charge", "filter": function(d) { return d; },"strength": -1.5}]
 
+
+            breakdown(breakdownObjs)
+
+        }
+
+        function splitTest() {
+
+            var xFunction = function(d) {
+                var veriBool = d.verified == "True";
+
+                return veriBool ? width / 3 : (width / 3) * 2
+            };
+            var yFunction = function(d) { return height/2; };
+
+            var breakdownObjs = [{"type": "xy", "breakX": xFunction, "strengthX": 0.15, "breakY": yFunction, "strengthY": 0.15}, {"type": "charge", "filter": function(d) { return d; },"strength": -1.5}]
 
             breakdown(breakdownObjs)
 
@@ -323,8 +318,8 @@
         }
 
         function breakoutIncome() {
-            var filterIn = function(d) { return d.inkomstgrupp != null }
-            var filterOut = function(d) { return d.inkomstgrupp == null }
+            var filterIn = function(d) { return d.inkomstgrupp != null };
+            var filterOut = function(d) { return d.inkomstgrupp == null };
 
             breakout(filterIn, filterOut)
         }
@@ -487,13 +482,13 @@
             var initialize = force.initialize;
             force.initialize = function() { initialize.call(force, data.filter(filter)); };
             return force;
-        };
+        }
 
         function ticked() {
             circles
                     .attr("cx", function(d) { return d.x; })
                     .attr("cy", function(d) { return d.y; })
-        };
+        }
 
         // draw circles
 
@@ -508,12 +503,15 @@
                 .attr("cx", function(d) { return d.x; })
                 .attr("cy", function(d) { return d.y; })
                 .attr("fill", function(d) {
-                    d.color = defaultColor
+                    d.color = defaultColor;
                     return d.color
-                })
-        // .on("mouseover", function(d) {
-        //     // console.log(d.kapitalgrupp)
-        // })
+                });
+
+        console.log(circles);
+
+        baseSim(0.1);
+        updateNodes();
+
 
         // define trigger functions
 
@@ -521,20 +519,20 @@
 
 
         window._trigger1 = function() {
-            highlight(function(d) { return false })
-            fade(function(d) { return false })
+            highlight(function(d) { return d.verified == "True"; })
+            fade(function(d) { return false });
 
-            if (triggerState != "base") {
-                baseSim(0.1);
-                updateNodes();
-                triggerState = "base"
+            if (triggerState != "verified") {
+                splitTest();
+                triggerState = "verified"
             }
+            updateNodes()
 
-        }
+        };
 
         window._trigger2 = function() {
             highlight(function(d) { return d.kon == "kvinna"; })
-            fade(function(d) { return false })
+            fade(function(d) { return false });
 
             if (triggerState != "sexes") {
                 splitSexes();
@@ -542,462 +540,32 @@
             }
             updateNodes()
 
-        }
+        };
 
-        window._trigger3 = function() {
-            highlight(function(d) { return false; })
-            fade(function(d) { return false; })
+        var triggers = [window._trigger1, window._trigger2];
 
-            if (triggerState != "age") {
-                updateNodes();
-                baseSim(0.7).on("end", function() {
-                    age()
-                })
-            } else {
-                age()
-            }
-            triggerState = "age"
-
-        }
-
-        window._trigger4 = function() {
-
-            highlight(function(d) { return d.alder >= 50; })
-            fade(function(d) { return false })
-
-            if (triggerState != "age") {
-                triggerState = "age"
-            }
-            age()
-
-        }
-
-        window._trigger5 = function() {
-            highlight(function(d) { return d.alder <= 18; })
-            fade(function(d) { return false })
-            if (triggerState != "age") {
-                triggerState = "age"
-            }
-            age()
-        }
-
-        window._trigger6 = function() {
-            var filterOut = function(d) { return d.inkomstgrupp == null }
-            highlight(filterOut)
-            fade(function(d) { return false })
-            if (triggerState != "base") {
-
-                baseSim(0.6)
-                triggerState = "base"
-            }
-            updateNodes()
-
-
-        }
-
-        window._trigger7 = function() {
-
-            var filterIn = function(d) { return d.inkomstgrupp != null }
-            var filterOut = function(d) { return d.inkomstgrupp == null }
-
-            if (triggerState == "base") {
-
-                highlight(filterOut)
-                fade(filterOut)
-                updateNodes()
-
-                breakout(filterIn, filterOut)
-
-            } else {
-                if (triggerState != "breakout") {
-
-                    highlight(filterOut)
-                    fade(function(d) { return false })
-                    updateNodes()
-
-                    baseSim(0.6).on("end", function(d) {
-
-                        highlight(filterOut)
-                        fade(filterOut)
-                        updateNodes()
-
-                        breakout(filterIn, filterOut)
-                    })
-                }
-            }
-            triggerState = "breakout"
-
-
-        }
-
-        window._trigger8 = function() {
-            highlight(function(d) { return d.inkomstgrupp == 0; })
-            fade(function(d) { return d.inkomstgrupp == null })
-
-
-            if (triggerState != "income") {
-                incomeGroup()
-                triggerState = "income"
-            }
-            updateNodes()
-
-        }
-
-        window._trigger9 = function() {
-            highlight(function(d) { return d.inkomstgrupp == 1; })
-            fade(function(d) { return d.inkomstgrupp == null })
-
-
-            if (triggerState != "income") {
-                incomeGroup()
-                triggerState = "income"
-            }
-            updateNodes()
-
-
-
-        }
-
-        window._trigger10 = function() {
-
-            highlight(function(d) { return d.inkomstgrupp == 2; })
-            fade(function(d) { return d.inkomstgrupp == null })
-
-            if (triggerState != "income") {
-                incomeGroup()
-                triggerState = "income"
-            }
-            updateNodes()
-
-        }
-
-        window._trigger11 = function() {
-
-            highlight(function(d) { return d.inkomstgrupp == 3; })
-            fade(function(d) { return d.inkomstgrupp == null })
-
-
-            if (triggerState != "income") {
-                incomeGroup()
-                triggerState = "income"
-            }
-            updateNodes()
-
-        }
-
-        window._trigger12 = function() {
-
-            highlight(function(d) { return d.inkomstgrupp == 4; })
-            fade(function(d) { return d.inkomstgrupp == null })
-
-            if (triggerState != "income") {
-                incomeGroup()
-                triggerState = "income"
-            }
-
-            updateNodes()
-
-        }
-
-        window._trigger13 = function() {
-
-            highlight(function(d) { return d.inkomstgrupp == 4 && d.kon == "kvinna"; })
-            fade(function(d) { return d.inkomstgrupp == null })
-
-            if (triggerState != "income") {
-                incomeGroup()
-                triggerState = "income"
-            }
-
-            updateNodes()
-
-        }
-
-        window._trigger14 = function() {
-
-            highlight(function(d) { return d.inkomstgrupp == 5; })
-            fade(function(d) { return d.inkomstgrupp == null })
-
-            if (triggerState != "income") {
-                incomeGroup()
-                triggerState = "income"
-            }
-
-            updateNodes()
-        }
-
-        window._trigger15 = function() {
-            highlight(function(d) { return d.kapitalgrupp == 1 })
-            fade(function(d) { return d.kapitalgrupp == null })
-
-            if (triggerState != "capital") {
-                capitalGroup()
-                triggerState = "capital"
-            }
-
-            updateNodes()
-        }
-
-        window._trigger16 = function() {
-
-            highlight(function(d) { return d.kapitalgrupp == 2 })
-            fade(function(d) { return d.kapitalgrupp == null })
-
-            if (triggerState != "capital") {
-                capitalGroup()
-                triggerState = "capital"
-            }
-
-            updateNodes()
-        }
-
-        window._trigger17 = function() {
-
-            highlight(function(d) { return d.kapitalgrupp == 3 })
-            fade(function(d) { return d.kapitalgrupp == null })
-
-            if (triggerState != "capital") {
-                capitalGroup()
-                triggerState = "capital"
-            }
-
-            updateNodes()
-        }
-
-        window._trigger18 = function() {
-            counter = 0;
-            var filterFunction = function(d) {
-                if (d.kapitalgrupp == 3 && counter < 4) {
-                    counter += 1;
-                    return true;
-                } else {
-                    return false;
-                };
-            };
-
-            highlight(filterFunction)
-            fade(function(d) { return d.kapitalgrupp == null })
-
-
-            if (triggerState != "capital") {
-                capitalGroup()
-                triggerState = "capital"
-            }
-            updateNodes()
-            counter = 0;
-
-        }
-
-        window._trigger19 = function() {
-            highlight(function(d) { return d.kapitalgrupp == 4 })
-            fade(function(d) { return d.kapitalgrupp == null })
-
-            if (triggerState != "capital") {
-                capitalGroup()
-                triggerState = "capital"
-            }
-
-            updateNodes()
-
-        }
-
-        window._trigger20 = function() {
-            counter = 0;
-            var filterFunction = function(d) {
-                if (d.kapitalgrupp == 4 && counter < 24) {
-                    counter += 1;
-                    return true;
-                } else {
-                    return false;
-                };
-            };
-
-            highlight(filterFunction)
-            fade(function(d) { return d.kapitalgrupp == null })
-
-
-            if (triggerState != "capital") {
-                capitalGroup()
-                triggerState = "capital"
-            }
-            updateNodes()
-            counter = 0;
-        }
-
-        window._trigger21 = function() {
-            highlight(function(d) { return d.kapitalgrupp == 5 })
-            fade(function(d) { return d.kapitalgrupp == null })
-
-            if (triggerState != "capital") {
-                capitalGroup()
-                triggerState = "capital"
-            }
-
-            updateNodes()
-        }
-
-        window._trigger22 = function() {
-            highlight(function(d) { return false; })
-            fade(function(d) { return false; })
-
-            if (triggerState != "base") {
-
-                baseSim(0.6)
-                triggerState = "base"
-            }
-            updateNodes()
-        }
-
-        window._trigger23 = function() {
-            highlight(function(d) { return d.batchkod == "M" })
-            fade(function(d) { return false; })
-
-            if (triggerState != "moss") {
-
-                moss()
-                triggerState = "moss"
-
-            }
-            updateNodes()
-
-        }
-
-        window._trigger24 = function() {
-
-            highlight(function(d) { return d.batchkod == "M" })
-            fade(function(d) { return false; })
-            updateNodes()
-            var filterIn = function(d) { return d.roll != null }
-            var filterOut = function(d) { return d.roll == null }
-
-
-            if (triggerState != "role") {
-                fade(filterOut)
-                updateNodes()
-                breakout(filterIn, filterOut).on("end", function() {
-                    role()
-                })
-
-            } else {
-                fade(filterOut)
-                updateNodes()
-                role()
-            }
-            triggerState = "role"
-
-
-        }
-
-        window._trigger25 = function() {
-            highlight(function(d) { return d.roll == "L" })
-            fade(function(d) { return d.roll == null })
-            updateNodes()
-
-            if (triggerState != "role") {
-                role()
-                triggerState = "role"
-            }
-        }
-
-        window._trigger26 = function() {
-            highlight(function(d) { return d.roll == "Sec" })
-            fade(function(d) { return d.roll == null })
-            updateNodes()
-
-            if (triggerState != "role") {
-                role()
-                triggerState = "role"
-            }
-        }
-
-        window._trigger27 = function() {
-            highlight(function(d) { return d.roll == "D" })
-            fade(function(d) { return d.roll == null })
-            updateNodes()
-
-            if (triggerState != "role") {
-                role()
-                triggerState = "role"
-            }
-        }
-
-        window._trigger28 = function() {
-            highlight(function(d) { return d.roll == "S" })
-            fade(function(d) { return d.roll == null })
-            updateNodes()
-
-            if (triggerState != "role") {
-                role()
-                triggerState = "role"
-            }
-
-        }
-
-        window._trigger29 = function() {
-            highlight(function(d) { return d.land != "Sverige" })
-            fade(function(d) { return false; })
-            updateNodes()
-            if (triggerState != "base") {
-                baseSim(0.6)
-                triggerState = "base"
-            }
-        }
-
-        window._trigger30 = function() {
-            var filterIn = function(d) { return d.land == "Sverige" }
-            var filterOut = function(d) { return d.land != "Sverige" }
-            highlight(filterOut)
-            updateNodes()
-
-
-            if (triggerState != "base" && triggerState != "kvar") {
-                fade(function(d) { return false; })
-
-                baseSim(0.6).on("end", function() {
-                    fade(filterOut)
-                    updateNodes()
-                    breakout(filterIn, filterOut).on("end", function() {
-                        kvar()
-                    })
-                })
-            } else {
-                if (triggerState != "kvar") {
-                    fade(filterOut)
-                    updateNodes()
-                    breakout(filterIn, filterOut).on("end", function() {
-                        highlight(filterIn)
-                        updateNodes()
-                        kvar()
-                    })
-                }
-            }
-            triggerState = "kvar"
-        }
-
-        var triggers = [window._trigger1, window._trigger2, window._trigger3, window._trigger4, window._trigger5, window._trigger6, window._trigger7, window._trigger8, window._trigger9, window._trigger10, window._trigger11, window._trigger12, window._trigger13, window._trigger14, window._trigger15, window._trigger16, window._trigger17, window._trigger18, window._trigger19, window._trigger20, window._trigger21, window._trigger22, window._trigger23, window._trigger24, window._trigger25, window._trigger26, window._trigger27, window._trigger28, window._trigger29, window._trigger30]
-
-        var navCount = -1
+        var navCount = -1;
 
         d3.select("#left")
                 .on("click", function() {
-                    navCount -= 1
-                    triggers[navCount]()
+                    navCount -= 1;
+                    triggers[navCount]();
                     console.log(navCount)
-                })
+                });
 
         d3.select("#right")
                 .on("click", function() {
-                    navCount += 1
-                    triggers[navCount]()
+                    navCount += 1;
+                    triggers[navCount]();
                     console.log(navCount)
-                })
+                });
 
 
         // window._vizData = data
         window._triggerRandom = function() {
             triggers[Math.floor(Math.random() * triggers.length)]()
         }
-    })
+    });
 
 
 </script>
