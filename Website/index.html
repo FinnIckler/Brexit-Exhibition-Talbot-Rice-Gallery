@@ -163,7 +163,7 @@
 
                         simulation
                                 .force("x" + i.toString(), customX)
-                                .force("y" + i.toString(), customY)
+                                .force("y" + i.toString(), customY);
                         activeForces.push("x" + i.toString());
                         activeForces.push("y" + i.toString());
 
@@ -519,7 +519,7 @@
 
 
         window._trigger1 = function() {
-            highlight(function(d) { return d.verified == "True"; })
+            highlight(function(d) { return d.verified == "True"; });
             fade(function(d) { return false });
 
             if (triggerState != "verified") {
@@ -531,7 +531,7 @@
         };
 
         window._trigger2 = function() {
-            highlight(function(d) { return d.kon == "kvinna"; })
+            highlight(function(d) { return d.kon == "kvinna"; });
             fade(function(d) { return false });
 
             if (triggerState != "sexes") {
