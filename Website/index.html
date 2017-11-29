@@ -107,7 +107,7 @@
                 log = Math.log;
                 tan = Math.tan;
                 //166
-                var x = (long+140)*(mapWidth/360);
+                var x = (long+180 - (mapWidth/30.473))*(mapWidth/360);
                 // convert from degrees to radians
                 var latRad = lat*PI/180;
                 var mercN = log(tan((PI/4)+(latRad/2)));
