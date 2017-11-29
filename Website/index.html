@@ -38,6 +38,7 @@
         }
         #text p {
             margin-left: 1.5em;
+            margin-right: 1.5em;
             text-align: right;
         }
         #viz {
@@ -120,8 +121,6 @@
 
     var activeForces = [];
 
-    var counter = 0;
-
     var barYactive = false;
 
     var top10_data = false;
@@ -138,19 +137,17 @@
             }else{
                 var lat = Number(d.position.split(',')[0].split('(')[1]); //* Math.PI / 180;
                 var long = Number(d.position.split(',')[1].split(')')[0]); //* Math.PI / 180;
-                mapWidth    = divWidth;
-                mapHeight   = divHeight;
-                PI = Math.PI;
-                log = Math.log;
-                tan = Math.tan;
+                var mapWidth    = divWidth;
+                var mapHeight   = divHeight;
+                var PI = Math.PI;
+                var log = Math.log;
+                var tan = Math.tan;
                 //166
                 var x = (long+180 - (mapWidth/30.473))*(mapWidth/360);
                 // convert from degrees to radians
                 var latRad = lat*PI/180;
                 var mercN = log(tan((PI/4)+(latRad/2)));
-                //20
-                y     = (mapHeight/2 - 7)-(mapWidth*mercN/(2*PI));
-                d.posy = y;
+                d.posy = (mapHeight/2 - 7)-(mapWidth*mercN/(2*PI));
                 d.posx = x;
             }
         });
@@ -179,10 +176,10 @@
 
         function initSim() {
             simulation
-                    .force("x", d3.forceX(function(d) {
+                    .force("x", d3.forceX(function() {
                         return randomX(Math.random())
                     }))
-                    .force("y", d3.forceY(function(d) {
+                    .force("y", d3.forceY(function() {
                         return randomY(Math.random())
                     }))
                     .alphaMin(0.5)
@@ -265,52 +262,6 @@
         }
 
 
-        function breakdown(breakdownObjects) {
-            /* breaks down nodes into groups centers of gravity defined by x and y functions */
-
-            var radius = 1;
-
-            removeForces();
-
-            for (i=0; i<breakdownObjects.length; i++) {
-                switch(breakdownObjects[i]["type"]) {
-
-                    case "xy":
-                        var customX = d3.forceX(breakdownObjects[i]["breakX"]).strength(breakdownObjects[i]["strengthX"])
-                        var customY = d3.forceY(breakdownObjects[i]["breakY"]).strength(breakdownObjects[i]["strengthY"])
-
-
-                        simulation
-                                .force("x" + i.toString(), customX)
-                                .force("y" + i.toString(), customY);
-                        activeForces.push("x" + i.toString());
-                        activeForces.push("y" + i.toString());
-
-                        break;
-
-                    case "charge":
-                        var customCharge = isolate(d3.forceManyBody(), breakdownObjects[i]["filter"]).strength(breakdownObjects[i]["strength"])
-                        simulation
-                                .force("charge" + i.toString(), customCharge);
-                        activeForces.push("charge" + i.toString());
-
-                        break;
-                }
-            }
-
-            simulation
-                    .force("collide", d3.forceCollide(radius))
-                    .alpha(1)
-                    .alphaMin(0.4)
-                    .restart();
-
-            activeForces.push("collide");
-
-
-            return simulation
-        }
-
-
         function breakdownMap(breakdownObjects) {
             /* breaks down nodes into groups centers of gravity defined by x and y functions */
 
@@ -318,12 +269,12 @@
 
             removeForces();
 
-            for (i=0; i<breakdownObjects.length; i++) {
+            for (var i=0; i<breakdownObjects.length; i++) {
                 switch(breakdownObjects[i]["type"]) {
 
                     case "xy":
-                        var customX = d3.forceX(breakdownObjects[i]["breakX"]).strength(breakdownObjects[i]["strengthX"])
-                        var customY = d3.forceY(breakdownObjects[i]["breakY"]).strength(breakdownObjects[i]["strengthY"])
+                        var customX = d3.forceX(breakdownObjects[i]["breakX"]).strength(breakdownObjects[i]["strengthX"]);
+                        var customY = d3.forceY(breakdownObjects[i]["breakY"]).strength(breakdownObjects[i]["strengthY"]);
 
 
                         simulation
@@ -389,7 +340,7 @@
                 return d.position? d.posy : 0
             };
 
-            var breakdownObjs = [{"type": "xy", "breakX": xFunction, "strengthX": 0.15, "breakY": yFunction, "strengthY": 0.15}, {"type": "charge", "filter": function(d) { return d; },"strength": -1.5}]
+            var breakdownObjs = [{"type": "xy", "breakX": xFunction, "strengthX": 0.15, "breakY": yFunction, "strengthY": 0.15}, {"type": "charge", "filter": function(d) { return d; },"strength": -1.5}];
 
             breakdownMap(breakdownObjs)
         }
@@ -412,11 +363,11 @@
             simulation.stop();
 
             radius = 3;
-
+            var radiusMulti;
             if (width > height) {
-                var radiusMulti = 3
+                radiusMulti = 3
             } else {
-                var radiusMulti = 2
+                radiusMulti = 2
             }
             circles
                     .transition()
@@ -424,21 +375,18 @@
                     .attr("opacity", function(d) { return d.fade })
                     .attr("fill", function(d) { return getColor(d.location); })
                     .attr("cy", function(d) {
-                        var y = barY(+accessor(d));
                         // manually update d.x to let simulation know x has changed
-                        d.y = y;
+                        d.y = barY(+accessor(d));
                         return d.y;
                     })
                     .attr("cx", function(d) {
                         if (xValObj[accessor(d)]) {
-                            var x = width - ((xValObj[accessor(d)] += 1) * (radius * radiusMulti));
                             // manually update d.x to let simulation know x has changed
-                            d.x = x;
-                            return x
+                            d.x = width - ((xValObj[accessor(d)] += 1) * (radius * radiusMulti));
+                            return d.x
                         } else {
-                            var x = width - ((xValObj[accessor(d)] = 1) * (radius * radiusMulti));
-                            d.x = x;
-                            return x
+                            d.x = width - ((xValObj[accessor(d)] = 1) * (radius * radiusMulti));
+                            return d.x
                         }
                     });
             barYaxisDOM = svg.append("g")
@@ -457,18 +405,16 @@
                         return +accessor(d) }))
                     .range([height, 0]);
 
-            var barYaxis = d3.axisRight(barY);
-
             var xValObj = {};
 
             simulation.stop();
 
             radius = 3;
-
+            var radiusMulti;
             if (width > height) {
-                var radiusMulti = 3
+                radiusMulti = 3
             } else {
-                var radiusMulti = 2
+                radiusMulti = 2
             }
             circles
                     .transition()
@@ -484,31 +430,21 @@
                                 d.location = top10_data[i].location;
                             }
                         }
-                        var y = barY(+accessor(d));
                         // manually update d.y to let simulation know x has changed
-                        d.y = y;
+                        d.y = barY(+accessor(d));
                         return d.y;
                     })
                     .attr("cx", function(d) {
                         if (xValObj[accessor(d)]) {
-                            var x = width - ((xValObj[accessor(d)] += 1) * (radius * radiusMulti));
                             // manually update d.x to let simulation know x has changed
-                            d.x = x;
-                            return x
+                            d.x = width - ((xValObj[accessor(d)] += 1) * (radius * radiusMulti));
+                            return d.x
                         } else {
-                            var x = width - ((xValObj[accessor(d)] = 1) * (radius * radiusMulti));
-                            d.x = x;
-                            return x
+                            d.x = width - ((xValObj[accessor(d)] = 1) * (radius * radiusMulti));
+                            return d.x
                         }
                     });
-            var barY = d3.scaleLinear()
-                    .domain(d3.extent(data.filter(filterFunction), function(d) {
-                        return +accessor(d) }))
-                    .range([height, 0]);
-
-            var barYaxis = d3.axisRight(barY);
-
-            var xValObj = {};
+            var xValObj_2 = {};
             circles.transition().duration(2000).attr("fill", function(d) { return getColor(d.location); })
                 .attr("r", function (d) {
                 if (top10_data != false){
@@ -527,9 +463,8 @@
                         return d.y;
                     }
                 }
-                var y = barY(+accessor(d));
                 // manually update d.y to let simulation know x has changed
-                d.y = y;
+                d.y = barY(+accessor(d));
                 return d.y;
                 }).attr("cx", function(d) {
                         for(var i = 0; i < 10;i++){
@@ -538,15 +473,13 @@
                                 return d.x;
                             }
                         }
-                        if (xValObj[accessor(d)]) {
-                            var x = width - ((xValObj[accessor(d)] += 1) * (radius * radiusMulti));
+                        if (xValObj_2[accessor(d)]) {
                             // manually update d.x to let simulation know x has changed
-                            d.x = x;
-                            return x
+                            d.x = width - ((xValObj_2[accessor(d)] += 1) * (radius * radiusMulti));
+                            return d.x
                         } else {
-                            var x = width - ((xValObj[accessor(d)] = 1) * (radius * radiusMulti));
-                            d.x = x;
-                            return x
+                            d.x = width - ((xValObj_2[accessor(d)] = 1) * (radius * radiusMulti));
+                            return d.x
                         }
                     });
             addNames();
@@ -699,7 +632,7 @@
                 barYactive = false;
             }
 
-            for (i=0; i<activeForces.length; i++) {
+            for (var i=0; i<activeForces.length; i++) {
                 simulation
                         .force(activeForces[i], null)
             }
