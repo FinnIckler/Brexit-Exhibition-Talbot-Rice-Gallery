@@ -583,11 +583,11 @@ d3.csv("/dummydata.csv", function(error, data) {
 
     window._trigger6 = function() {
         var filterOut = function(d) { return d.inkomstgrupp == null }
-        highlight(filterOut)
+        highlight(filterOut);
         fade(function(d) { return false })
         if (triggerState != "base") {
 
-            baseSim(0.6)
+            baseSim(0.6);
             triggerState = "base"
         }
         updateNodes()
@@ -628,7 +628,7 @@ d3.csv("/dummydata.csv", function(error, data) {
         triggerState = "breakout"
 
 
-    }
+    };
 
     window._trigger8 = function() {
         highlight(function(d) { return d.inkomstgrupp == 0; })

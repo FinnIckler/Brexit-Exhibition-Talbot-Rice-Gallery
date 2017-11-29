@@ -3,9 +3,11 @@
 <meta charset="utf-8">
 <head>
     <script src="https://d3js.org/d3.v4.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="fonts/fonts.min.css" />
     <style>
         body {
-            background: #000000 url("images/worldmap_1920.svg") no-repeat;
+            font-family: 'proxima_nova_ltsemibold',Georgia, sans-serif;
+            background: #000000;
         }
         #viz {
             width: 100%;
@@ -25,14 +27,23 @@
     </style>
 </head>
 
-<body>
+<body id="background">
 <div id="viz"></div>
 <button id="left"><</button>
 <button id="right">></button>
 
 <script>
 
-
+    Element.prototype.remove = function() {
+        this.parentElement.removeChild(this);
+    };
+    NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
+        for(var i = this.length - 1; i >= 0; i--) {
+            if(this[i] && this[i].parentElement) {
+                this[i].parentElement.removeChild(this[i]);
+            }
+        }
+    };
 
     // get width and height from viz-div
 
@@ -62,11 +73,11 @@
             .attr("fill", "transparent");
 
 
-    var radius = 1;
+    var radius = 3;
 
     var defaultColor = "white";
 
-    var highlightColor = "magenta";
+    var highlightColor = "grey";
 
     var updateDuration = 1500;
 
@@ -76,30 +87,35 @@
 
     var barYactive = false;
 
-    d3.csv("pre_brexit_data_1000.csv", function(error, data) {
+    var top10_data = false;
+    var top10 = [false,false,false,false,false,false,false,false,false,false];
+    d3.csv("pre_brexit_data_small.csv", function(error, data) {
         if (error) throw error;
 
         data.forEach(function(d) {
             d.fade = 1;
             d.color = defaultColor;
-            var lat = Number(d.position.split(',')[0].split('(')[1]); //* Math.PI / 180;
-            var long = Number(d.position.split(',')[1].split(')')[0]); //* Math.PI / 180;
-            mapWidth    = divWidth;
-            mapHeight   = divHeight;
-            PI = Math.PI;
-            log = Math.log;
-            tan = Math.tan;
-                        //166
-            var x = (long+140)*(mapWidth/360);
-           // convert from degrees to radians
-            var latRad = lat*PI/180;
-            var mercN = log(tan((PI/4)+(latRad/2)));
-                                  //20
-            y     = (mapHeight/2 - 7)-(mapWidth*mercN/(2*PI));
-            d.posy = y;
-            //console.log(d.posy);
-            d.posx = x;
-            //console.log(d.posx)
+            d.age = Math.floor(d.age / 60 / 60 / 24 / 30);
+            if (d.position == ""){
+                d.position = false
+            }else{
+                var lat = Number(d.position.split(',')[0].split('(')[1]); //* Math.PI / 180;
+                var long = Number(d.position.split(',')[1].split(')')[0]); //* Math.PI / 180;
+                mapWidth    = divWidth;
+                mapHeight   = divHeight;
+                PI = Math.PI;
+                log = Math.log;
+                tan = Math.tan;
+                //166
+                var x = (long+140)*(mapWidth/360);
+                // convert from degrees to radians
+                var latRad = lat*PI/180;
+                var mercN = log(tan((PI/4)+(latRad/2)));
+                //20
+                y     = (mapHeight/2 - 7)-(mapWidth*mercN/(2*PI));
+                d.posy = y;
+                d.posx = x;
+            }
         });
 
         /* scales */
@@ -140,6 +156,52 @@
             activeForces.push("x", "y");
 
             return simulation
+        }
+
+        function getColor(location){
+            var country = "";
+            if(location.indexOf(',') != -1){
+               country = location.split(",")[1].substr(1)
+            }else{
+                country = location
+            }
+            switch (country){
+                case "United Kingdom":
+                case "England":
+                case "Wales":
+                case "Scotland":
+                case "France":
+                case "Germany":
+                case "Spain":
+                case "Ireland":
+                case "Belgium":
+                case "Netherlands":
+                case "Italy":
+                case "Sweden":
+                case "Greece":
+                case "Poland":
+                case "Catalunya":
+                case "Denmark":
+                    return "#3366cc";
+                case "United States":
+                case "Canada":
+                case "Mexico":
+                    return "#CC33FF";
+                case "India":
+                case "Singapore":
+                case "Thailand":
+                case "China":
+                case "UAE":
+                    return "#ccff66";
+                case "Australia":
+                    return "#ff6633";
+                case "South Africa":
+                case "Nigeria":
+                    return "#996666";
+                default:
+                    return "#FFFFFF"
+            }
+
         }
 
 
@@ -284,9 +346,11 @@
         }
         function splitMap(){
             var xFunction = function(d) {
-                return d.posx
+                return d.position? d.posx : 0
             };
-            var yFunction = function(d) { return d.posy};
+            var yFunction = function(d) {
+                return d.position? d.posy : 0
+            };
 
             var breakdownObjs = [{"type": "xy", "breakX": xFunction, "strengthX": 0.15, "breakY": yFunction, "strengthY": 0.15}, {"type": "charge", "filter": function(d) { return d; },"strength": -1.5}]
 
@@ -304,16 +368,16 @@
                         return +accessor(d) }))
                     .range([height, 0]);
 
-            var barYaxis = d3.axisLeft(barY);
+            var barYaxis = d3.axisRight(barY);
 
             var xValObj = {};
 
             simulation.stop();
 
-            radius = 2;
+            radius = 3;
 
             if (width > height) {
-                var radiusMulti = 4
+                var radiusMulti = 3
             } else {
                 var radiusMulti = 2
             }
@@ -321,7 +385,7 @@
                     .transition()
                     .duration(1500)
                     .attr("opacity", function(d) { return d.fade })
-                    .attr("fill", function(d) { return d.color; })
+                    .attr("fill", function(d) { return getColor(d.location); })
                     .attr("cy", function(d) {
                         var y = barY(+accessor(d));
                         // manually update d.x to let simulation know x has changed
@@ -330,188 +394,254 @@
                     })
                     .attr("cx", function(d) {
                         if (xValObj[accessor(d)]) {
-                            var x = ((xValObj[accessor(d)] += 1) * (radius * radiusMulti));
+                            var x = width - ((xValObj[accessor(d)] += 1) * (radius * radiusMulti));
                             // manually update d.x to let simulation know x has changed
                             d.x = x;
                             return x
                         } else {
-                            var x = ((xValObj[accessor(d)] = 1) * (radius * radiusMulti));
+                            var x = width - ((xValObj[accessor(d)] = 1) * (radius * radiusMulti));
                             d.x = x;
                             return x
                         }
                     });
-
             barYaxisDOM = svg.append("g")
-                    .attr("class", "y-axis")
+                    .attr("class", "y-axis").attr("transform","translate("+width+")")
                     .call(barYaxis);
 
             barYactive = true;
         }
 
-        /* simulation functions specific for dataset */
+        function barchartYRetweeted(filterFunction, accessor) {
+            /* creates a bar chart on the left hand side from values (not a force function!) */
+            removeForces();
 
-        function splitSexes() {
+            var barY = d3.scaleLinear()
+                    .domain(d3.extent(data.filter(filterFunction), function(d) {
+                        return +accessor(d) }))
+                    .range([height, 0]);
 
-            var xFunction = function(d) {
-                var boyBool = d.kon == "man";
+            var barYaxis = d3.axisRight(barY);
 
-                return boyBool ? width / 3 : (width / 3) * 2
-            };
-            var yFunction = function(d) { return height/2; };
+            var xValObj = {};
 
-            var breakdownObjs = [{"type": "xy", "breakX": xFunction, "strengthX": 0.15, "breakY": yFunction, "strengthY": 0.15}, {"type": "charge", "filter": function(d) { return d; },"strength": -1.5}]
+            simulation.stop();
 
+            radius = 3;
 
-            breakdown(breakdownObjs)
+            if (width > height) {
+                var radiusMulti = 3
+            } else {
+                var radiusMulti = 2
+            }
+            circles
+                    .transition()
+                    .duration(1500)
+                    .attr("opacity", function(d) { return d.fade })
+                    .attr("cy", function(d) {
+                        for(var i = 0; i < 10;i++){
+                            if(top10[i]){
+                                continue
+                            }
+                            if(d.age == top10_data[i].age && top10.indexOf(d.screen_name) == -1){
+                                top10[i] = d.screen_name;
+                                d.location = top10_data[i].location;
+                            }
+                        }
+                        var y = barY(+accessor(d));
+                        // manually update d.y to let simulation know x has changed
+                        d.y = y;
+                        return d.y;
+                    })
+                    .attr("cx", function(d) {
+                        if (xValObj[accessor(d)]) {
+                            var x = width - ((xValObj[accessor(d)] += 1) * (radius * radiusMulti));
+                            // manually update d.x to let simulation know x has changed
+                            d.x = x;
+                            return x
+                        } else {
+                            var x = width - ((xValObj[accessor(d)] = 1) * (radius * radiusMulti));
+                            d.x = x;
+                            return x
+                        }
+                    });
+            var barY = d3.scaleLinear()
+                    .domain(d3.extent(data.filter(filterFunction), function(d) {
+                        return +accessor(d) }))
+                    .range([height, 0]);
 
+            var barYaxis = d3.axisRight(barY);
+
+            var xValObj = {};
+            circles.transition().duration(2000).attr("fill", function(d) { return getColor(d.location); })
+                .attr("r", function (d) {
+                if (top10_data != false){
+                    return top10.indexOf(d.screen_name) != -1? 10 : radius;
+                }else{
+                    return radius;
+                }}).attr("opacity", function (d) {
+                if (top10_data != false){
+                    return top10.indexOf(d.screen_name) != -1? 1 : 0.2;
+                }else{
+                    return 1;
+                }}).transition().duration(2000).attr("cy", function(d) {
+                for(var i = 0; i < 10;i++){
+                    if(d.screen_name == top10[i]){
+                        d.y = 30 * i;
+                        return d.y;
+                    }
+                }
+                var y = barY(+accessor(d));
+                // manually update d.y to let simulation know x has changed
+                d.y = y;
+                return d.y;
+                }).attr("cx", function(d) {
+                        for(var i = 0; i < 10;i++){
+                            if(d.screen_name == top10[i]){
+                                d.x = width / 2 - 110;
+                                return d.x;
+                            }
+                        }
+                        if (xValObj[accessor(d)]) {
+                            var x = width - ((xValObj[accessor(d)] += 1) * (radius * radiusMulti));
+                            // manually update d.x to let simulation know x has changed
+                            d.x = x;
+                            return x
+                        } else {
+                            var x = width - ((xValObj[accessor(d)] = 1) * (radius * radiusMulti));
+                            d.x = x;
+                            return x
+                        }
+                    });
+            addNames();
         }
 
-        function splitTest() {
 
-            var xFunction = function(d) {
-                var veriBool = d.verified == "True";
+        function getHashtags(name) {
+            switch (name){
+                case "Vote Leave":{
+                    return "#VoteLeave"
+                }
+                case "LEAVE.EU":{
+                    return "#VoteLeave"
+                }
+                case "TheOrdinaryMan":{
+                    return "#Dictatorship"
+                }
+                case "Russ":{
+                    return "#Remain"
+                }
+                case "Louise Mensch":{
+                    return "#VoteLeave"
+                }
+                case "BBC News (UK)":{
+                    return "#EURef"
+                }
+                case "Vote Leave Media":{
+                    return "#VoteLeave"
+                }
+                case "Richard Branson":{
+                    return "#VoteRemain"
+                }
+                case "J.K. Rowling":{
+                    return "#Remain"
+                }
+                case "Emma Watson":{
+                    return "#Remain"
+                }
+                case "Nick Reeves - 48%":{
+                    return "#StopBrexit"
+                }
+                case "#Brexit Bin":{
+                    return "#StopBrexit"
+                }
+                case "Craig Whitington":{
+                    return "#Brexit (Leave)"
+                }
+                case "Richard Corbett":{
+                    return "#LeaveLies"
+                }
+                case "UKIP Nonsense ❄":{
+                    return "#StopBrexit"
+                }
+                case "James Melville":{
+                    return "#FlorenceSpeech (Remain)"
+                }
+                case "Ebrahim Hemmatnia":{
+                    return "#Iran"
+                }
+                case "Jeremy Cliffe": {
+                    return "#FlorenceSpeech"
+                }
+                case "Mireia": {
+                    return "#Catalunya+#Referèndum"
+                }
+                case "Graham Simpson":{
+                    return "#StopBrexit"
+                }
 
-                return veriBool ? width / 3 : (width / 3) * 2
-            };
-            var yFunction = function(d) { return height/2; };
-
-            var breakdownObjs = [{"type": "xy", "breakX": xFunction, "strengthX": 0.15, "breakY": yFunction, "strengthY": 0.15}, {"type": "charge", "filter": function(d) { return d; },"strength": -1.5}]
-
-            breakdown(breakdownObjs)
-
+            }
         }
 
-        function age() {
+        function addNames() {
+            var body = document.getElementById("background");
+            var i = 0;
+            top10_data.forEach(function (d) {
+                var div = document.createElement("div");
+                var text = document.createElement("p");
+                text.innerText = "@"+d.name;
+                div.style.position = "absolute";
+                div.style.right = "23.5%";
+                div.style.top = 30 + i * 30 +"px";
+                div.style.color = "white";
+                div.style.width = "26em";
+                div.id = "div-"+i;
+                text.style.display = "inline-block";
+                text.style.fontSize = "1.8em";
+                text.style.textAlign = "left";
+                text.style.fontFamily = "proxima_nova_ltsemibold";
+                var small_text = document.createElement("p");
+                small_text.innerText = getHashtags(d.name);
+                small_text.style.fontFamily = "proxima_nova_ltthin";
+                small_text.style.display = "inline-block";
+                small_text.style.marginLeft = "0.6em";
+                div.appendChild(text);
+                div.appendChild(small_text);
+                i++;
+                body.appendChild(div);
+            })
+        }
+        function  removeNames() {
+            for (var i = 0; i < 10; i++){
+                document.getElementById("div-"+i).remove();
+            }
+        }
+
+        function age(day) {
 
             var filterFunction = function(d) {
-                return d.alder != null
+                return d.age != null
             };
             var accessor = function(d) {
-                return d.alder
+                return d.age
             };
-            barchartY(filterFunction, accessor)
+            if(day != ""){
+                getMostInfluental(day,barchartYRetweeted,filterFunction,accessor);
+            }else{
+                barchartY(filterFunction,accessor)
+            }
         }
 
-        function breakoutIncome() {
-            var filterIn = function(d) { return d.inkomstgrupp != null };
-            var filterOut = function(d) { return d.inkomstgrupp == null };
-
-            breakout(filterIn, filterOut)
-        }
-
-        function incomeGroup() {
-            var xFunction = function(d) {
-                return d.inkomstgrupp != null ? (width / 2) : d.x
-            };
-            var yFunction = function(d) {
-                var yScale = d3.scaleLinear()
-                        .domain(d3.extent(data, function(p) { return p.inkomstgrupp; }))
-                        .range([height-75, 0+75]);
-                return d.inkomstgrupp != null ? yScale(d.inkomstgrupp) : d.y
-            };
-
-            var xyBreakdown = {"type": "xy", "breakX": xFunction, "filterX": function(d) { return d; }, "strengthX": 0.24, "breakY": yFunction, "filterY": function(d) { return d; }, "strengthY": 0.18}
-
-            var chargeBreakdown = {"type": "charge", "filter": function(d) { return d.inkomstgrupp != null; }, "strength": -1.5}
-
-            var chargeBreakdownNull = {"type": "charge", "filter": function(d) { return d.inkomstgrupp == null; }, "strength": -1.5}
-
-            return breakdown([xyBreakdown, chargeBreakdown, chargeBreakdownNull])
-        }
-
-        function capitalGroup() {
-
-            var xFunction = function(d) {
-                return d.kapitalgrupp != null ? (width / 2) : d.x
-            };
-            var yFunction = function(d) {
-                var yScale = d3.scaleLinear()
-                        .domain(d3.extent(data, function(p) { return p.kapitalgrupp; }))
-                        .range([height-75, 0+75])
-                return d.kapitalgrupp != null ? yScale(d.kapitalgrupp) : d.y
-            };
-
-            var xyBreakdown = {"type": "xy", "breakX": xFunction, "filterX": function(d) { return d; }, "strengthX": 0.24, "breakY": yFunction, "filterY": function(d) { return d; }, "strengthY": 0.18}
-
-            var chargeBreakdown = {"type": "charge", "filter": function(d) {
-                return d.kapitalgrupp != null; }, "strength": -1.5}
-
-            var chargeBreakdownNull = {"type": "charge", "filter": function(d) { return d.kapitalgrupp == null; }, "strength": -1.5}
-
-            breakdown([xyBreakdown, chargeBreakdown, chargeBreakdownNull])
-
-        }
-
-        function moss() {
-
-            var xFunction = function(d) {
-                var boyBool = d.batchkod != "M";
-                return boyBool ? width / 3 : (width / 3) * 2
-            };
-            var yFunction = function(d) { return height/2; };
-
-            var breakdownObjs = [{"type": "xy", "breakX": xFunction, "strengthX": 0.15, "breakY": yFunction, "strengthY": 0.15}, {"type": "charge", "filter": function(d) { return d; }, "strength": -1.5}]
-
-            return breakdown(breakdownObjs)
-        }
-
-        function role() {
-            // title.text("Roll")
-
-
-            var xFunction = function(d) {
-                return d.roll != null ? width / 2 : d.x
-            };
-            var yFunction = function(d) {
-                var yScale = d3.scaleBand()
-                        .domain(['L', 'Sec', 'D', 'S'])
-                        .range([height, 0+100]);
-                return d.roll != null ? yScale(d.roll) : d.y;
-            };
-
-            var xyBreakdown = {"type": "xy", "breakX": xFunction, "filterX": function(d) { return d; }, "strengthX": 0.3, "breakY": yFunction, "filterY": function(d) { return d; }, "strengthY": 0.2}
-
-            var chargeBreakdown = {"type": "charge", "filter": function(d) { return d.roll != null; }, "strength": -1.5};
-
-            var chargeBreakdownNull = {"type": "charge", "filter": function(d) { return d.roll == null; }, "strength": -1.5};
-
-
-            breakdown([xyBreakdown, chargeBreakdown, chargeBreakdownNull])
-
-        }
-
-
-
-        function kvar() {
-
-            var filterIn = function(d) { return d.land == "Sverige" };
-            var filterOut = function(d) { return d.land != "Sverige" };
-
-            breakout(filterIn, filterOut).on("end", function() {
-
-                var xFunction = function(d) {
-                    return d.land == "Sverige" ? width / 2 : d.x;
-                };
-                var yFunction = function(d) {
-                    return d.land == "Sverige" ? height/2 : d.y;
-                };
-
-                var xyBreakdown = {"type": "xy", "breakX": xFunction, "filterX": function(d) { return d; },  "strengthX": 0.1, "breakY": yFunction, "filterY": function(d) { return d; }, "strengthY": 0.1};
-
-                var chargeBreakdown = {"type": "charge", "filter": function(d) { return d.land == "Sverige"; }, "strength": -1.5};
-
-
-                breakdown([xyBreakdown, chargeBreakdown])
-            })
-
-
-        }
 
         /* helper functions */
 
         function highlight(filterFunction) {
             data.forEach(function(d) {
                 d.color = filterFunction(d) ? highlightColor : defaultColor
+            })
+        }
+        function highlightCountries() {
+            data.forEach(function(d) {
+                d.color = d.position != false ? getColor(d.location) : "white"
             })
         }
 
@@ -551,6 +681,16 @@
                     })
         }
 
+        function getMostInfluental(day,callback,filterfunction,acessor){
+            d3.csv("most_retweeted_"+day+".csv", function(error, data) {
+                top10_data = data;
+                data.forEach(function (d) {
+                    d.age = Math.floor(d.age / 60 / 60 / 24 / 30);
+                });
+                callback(filterfunction,acessor)
+            });
+        }
+
         // from https://bl.ocks.org/mbostock/b1f0ee970299756bc12d60aedf53c13b
 
         function isolate(force, filter) {
@@ -563,6 +703,55 @@
             circles
                     .attr("cx", function(d) { return d.x; })
                     .attr("cy", function(d) { return d.y; })
+        }
+        function replaceData(s,callback) {
+            d3.csv(s+"_brexit_data.csv", function(error, new_data) {
+                new_data.forEach(
+                        function (d) {
+                            d.fade = 1;
+                            d.color = defaultColor;
+                            d.age = Math.floor(d.age / 60 / 60 / 24 / 30);
+                            if (d.position == "" || typeof(d.position) == "undefined"){
+                                d.position = false
+                            }else{
+                                var lat = Number(d.position.split(',')[0].split('(')[1]); //* Math.PI / 180;
+                                var long = Number(d.position.split(',')[1].split(')')[0]); //* Math.PI / 180;
+                                mapWidth    = divWidth;
+                                mapHeight   = divHeight;
+                                PI = Math.PI;
+                                log = Math.log;
+                                tan = Math.tan;
+                                var x = (long+140)*(mapWidth/360);
+                                // convert from degrees to radians
+                                var latRad = lat*PI/180;
+                                var mercN = log(tan((PI/4)+(latRad/2)));
+                                y     = (mapHeight/2 - 7)-(mapWidth*mercN/(2*PI));
+                                d.posy = y;
+                                d.posx = x;
+                            }
+                        }
+                );
+//                svg.selectAll("g").remove();
+                data = new_data;
+                simulation
+                        .nodes(data)
+                        .on("tick", ticked);
+                initSim();
+                var circle = svg.selectAll("circle")
+                        .data(data);
+
+                circle.enter().append("circle")
+                        .attr("r", radius);
+
+                circle
+                        .attr("cx", function(d) { return width / 2; })
+                        .attr("r", radius)
+                        .attr("cy", function(d) { return height / 2; });
+
+                circle.exit().remove();
+                baseSim(0.1);
+                updateNodes();
+            });
         }
 
         // draw circles
@@ -580,11 +769,10 @@
                 .attr("fill", function(d) {
                     d.color = defaultColor;
                     return d.color
-                }).on("mouseover", function(d) {
+                })
+                .on("mouseover", function(d) {
                          console.log(d.location + " at " + d.posx + "," + d.posy)
                      });
-
-        //console.log(circles);
 
         baseSim(0.1);
         updateNodes();
@@ -594,25 +782,221 @@
 
         var triggerState;
 
+        window._pre_trigger1 = function() {
+            var filterIn = function(d) { return d.bogus == "False" && d.position != false};
+            var filterOut = function(d) { return d.bogus == "False" && d.position == false };
 
-        window._trigger1 = function() {
+            if (triggerState == "base") {
+
+                highlight(filterOut);
+                fade(filterOut);
+                updateNodes();
+
+                breakout(filterIn, filterOut)
+
+            } else {
+                if (triggerState != "breakout") {
+
+                    highlight(filterOut);
+                    fade(function(d) { return false });
+                    updateNodes();
+
+                    baseSim(0.6).on("end", function(d) {
+
+                        highlight(filterOut);
+                        fade(filterOut);
+                        updateNodes();
+
+                        breakout(filterIn, filterOut)
+                    })
+                }
+            }
+            fade(function (d) {
+                return d.bogus == "False" && d.position == false;
+            })
+        };
+
+        window._pre_trigger2 = function() {
+            document.getElementById("background").style.background = "#000000";
+            var filterIn = function(d) { return d.position != false};
+            var filterOut = function(d) { return d.position == false };
+            if (triggerState == "base") {
+                highlight(filterOut);
+                fade(filterOut);
+                updateNodes();
+
+                breakout(filterIn, filterOut)
+
+            } else {
+                if (triggerState != "breakout") {
+                    highlight(filterOut);
+                    fade(function(d) { return false });
+                    updateNodes();
+
+                    baseSim(0.6).on("end", function(d) {
+
+                        highlight(filterOut);
+                        fade(filterOut);
+                        updateNodes();
+
+                        breakout(filterIn, filterOut)
+                    })
+                }
+            }
+        };
+
+
+        window._pre_trigger3 = function() {
+            document.getElementById("background").style.background = "#000000 url('images/worldmap_1920.svg') no-repeat";
+            fade(function(d) { return d.position == false });
             splitMap();
+            highlightCountries();
             updateNodes()
         };
 
-        window._trigger2 = function() {
-            highlight(function(d) { return d.verified == "True"; });
+        window._pre_trigger4 = function() {
+            top10_data = false;
+            top10 = [false,false,false,false,false,false,false,false,false,false];
+            document.getElementById("background").style.background = "#000000";
+            highlight(function(d) { return false; });
+            fade(function(d) { return false; });
+
+            if (triggerState != "age") {
+                updateNodes();
+                baseSim(0.7).on("end", function() {
+                    age("")
+                })
+            } else {
+                age("")
+            }
+            triggerState = "age"
+
+        };
+
+        window._pre_trigger5 = function() {
+            highlight(function(d) { return false});
             fade(function(d) { return false });
 
-            if (triggerState != "verified") {
-                splitTest();
-                triggerState = "verified"
+            if (triggerState != "age") {
+                triggerState = "age"
             }
-            updateNodes()
+            age("pre")
 
         };
 
-        var triggers = [window._trigger1, window._trigger2];
+        window._post_trigger1 = function () {
+            removeNames();
+            replaceData("post",baseSim);
+            triggerState = "base";
+        };
+        window._post_trigger2 = function() {
+            var filterIn = function(d) { return d.bogus == "False" && d.position != false};
+            var filterOut = function(d) { return d.bogus == "False" && d.position == false };
+
+            if (triggerState == "base") {
+
+                highlight(filterOut);
+                fade(filterOut);
+                updateNodes();
+
+                breakout(filterIn, filterOut)
+
+            } else {
+                if (triggerState != "breakout") {
+
+                    highlight(filterOut);
+                    fade(function(d) { return false });
+                    updateNodes();
+
+                    baseSim(0.6).on("end", function(d) {
+
+                        highlight(filterOut);
+                        fade(filterOut);
+                        updateNodes();
+
+                        breakout(filterIn, filterOut)
+                    })
+                }
+            }
+            fade(function (d) {
+                return d.bogus == "False" && d.position == false;
+            })
+        };
+
+        window._post_trigger3 = function() {
+            document.getElementById("background").style.background = "#000000";
+            var filterIn = function(d) { return d.position != false};
+            var filterOut = function(d) { return d.position == false };
+            if (triggerState == "base") {
+                highlight(filterOut);
+                fade(filterOut);
+                updateNodes();
+
+                breakout(filterIn, filterOut)
+
+            } else {
+                if (triggerState != "breakout") {
+                    highlight(filterOut);
+                    fade(function(d) { return false });
+                    updateNodes();
+
+                    baseSim(0.6).on("end", function(d) {
+
+                        highlight(filterOut);
+                        fade(filterOut);
+                        updateNodes();
+
+                        breakout(filterIn, filterOut)
+                    })
+                }
+            }
+        };
+
+
+        window._post_trigger4 = function() {
+            document.getElementById("background").style.background = "#000000 url('images/worldmap_1920.svg') no-repeat";
+            fade(function(d) { return d.position == false });
+            splitMap();
+            highlightCountries();
+            updateNodes()
+        };
+
+        window._post_trigger5 = function() {
+            top10_data = false;
+            top10 = [false,false,false,false,false,false,false,false,false,false];
+            document.getElementById("background").style.background = "#000000";
+            highlight(function(d) { return false; });
+            fade(function(d) { return false; });
+
+            if (triggerState != "age") {
+                updateNodes();
+                baseSim(0.7).on("end", function() {
+                    age("")
+                })
+            } else {
+                age("")
+            }
+            triggerState = "age"
+
+        };
+        window._post_trigger6 = function() {
+            highlight(function(d) { return false; });
+            fade(function(d) { return false; });
+
+            if (triggerState != "age") {
+                updateNodes();
+                baseSim(0.7).on("end", function() {
+                    age("post")
+                })
+            } else {
+                age("post")
+            }
+            triggerState = "age"
+
+        };
+
+        var triggers = [window._pre_trigger1, window._pre_trigger2,window._pre_trigger3,window._pre_trigger4, window._pre_trigger5,
+            window._post_trigger1,window._post_trigger2,window._post_trigger3,window._post_trigger4,window._post_trigger5,window._post_trigger6];
 
         var navCount = -1;
 
