@@ -8,6 +8,37 @@
         body {
             font-family: 'proxima_nova_ltsemibold',Georgia, sans-serif;
             background: #000000;
+            color: #ffffff;
+        }
+        #title{
+            margin: auto;
+            width: 50%;
+            text-align: justify;
+            padding: 10px;
+        }
+        h1{
+            font-size: 3em;
+        }
+        #title h1{
+            text-align: center;
+        }
+        #title p{
+            font-size: 1.5em;
+            font-family: 'proxima_nova_ltthin',Georgia, sans-serif;
+        }
+        #text{
+            visibility: hidden;
+            position: absolute;
+            width: 466px;
+            height: 230px;
+            top: 390px;
+            left: 0;
+            z-index: 1;
+            background-color: rgba(0,0,0,0.7);
+        }
+        #text p {
+            margin-left: 1.5em;
+            text-align: right;
         }
         #viz {
             width: 100%;
@@ -28,6 +59,12 @@
 </head>
 
 <body id="background">
+<div id="title"><h1>TITLE</h1>
+<p>Es gibt im Moment in diese Mannschaft, oh, einige Spieler vergessen ihnen Profi was sie sind. Ich lese nicht sehr viele Zeitungen, aber ich habe gehört viele Situationen. Erstens: wir haben nicht offensiv gespielt. Es gibt keine deutsche Mannschaft spielt offensiv und die Name offensiv wie Bayern. Letzte Spiel hatten wir in Platz drei Spitzen: Elber, Jancka und dann Zickler. Wir müssen nicht vergessen Zickler. Zickler ist eine Spitzen mehr, Mehmet eh mehr Basler. Ist klar diese Wörter, ist möglich verstehen, was ich hab gesagt? Danke. Offensiv, offensiv ist wie machen wir in Platz. Zweitens: ich habe erklärt mit diese</p></div>
+<div id="text">
+    <p>Eine wunderbare Heiterkeit hat meine ganze Seele eingenommen, gleich den süßen Frühlingsmorgen, die ich mit ganzem Herzen genieße. Ich bin allein und freue mich meines
+    </p>
+</div>
 <div id="viz"></div>
 <button id="left"><</button>
 <button id="right">></button>
@@ -50,8 +87,8 @@
     var divWidth = document.getElementById("viz").clientWidth;
     var divHeight = document.getElementById("viz").clientHeight;
 
-    var height = divHeight;
-    var width = divWidth;
+    var height = 700;
+    var width = 1219;
 
     var margin = {top: height*0.1, right: width * 0.08, bottom: height * 0.06, left: width * 0.08};
 
@@ -214,7 +251,7 @@
             simulation
                     .stop()
                     .force("charge", d3.forceManyBody().strength(-2))
-                    .force("x", d3.forceX(width/2).strength(0.12))
+                    .force("x", d3.forceX(width/4 * 3).strength(0.12))
                     .force("y", d3.forceY(height/2).strength(0.12))
                     .force("collide", d3.forceCollide(radius))
                     .alphaMin(alphaMin)
@@ -324,10 +361,10 @@
 
             removeForces();
 
-            var customRadial = isolate(d3.forceRadial(width * 0.7, width / 2, height / 2), filterOut).strength(0.12);
+            var customRadial = isolate(d3.forceRadial(width * 0.7, width / 4 * 3, height / 2), filterOut).strength(0.12);
 
 
-            var customCenter = isolate(d3.forceCenter(width / 2, height / 2), filterIn);
+            var customCenter = isolate(d3.forceCenter(width / 4 * 3, height / 2), filterIn);
 
             simulation.stop()
                     .force("center", customCenter)
@@ -615,6 +652,9 @@
                 document.getElementById("div-"+i).remove();
             }
         }
+        function removeTitlePage() {
+            document.getElementById("title").remove();
+        }
 
         function age(day) {
 
@@ -704,6 +744,17 @@
                     .attr("cx", function(d) { return d.x; })
                     .attr("cy", function(d) { return d.y; })
         }
+        function setText(text){
+            var text_block = document.getElementById('text');
+            text_block.style.visibility = "visible";
+            text.innerText = text;
+        }
+        function setHeading(heading){
+            var text_heading = document.getElementById('heading');
+            text_heading.style.visibility = "visible";
+            text_heading.innerText = heading;
+        }
+
         function replaceData(s,callback) {
             d3.csv(s+"_brexit_data.csv", function(error, new_data) {
                 new_data.forEach(
@@ -744,7 +795,7 @@
                         .attr("r", radius);
 
                 circle
-                        .attr("cx", function(d) { return width / 2; })
+                        .attr("cx", function(d) { return width / 4 * 3; })
                         .attr("r", radius)
                         .attr("cy", function(d) { return height / 2; });
 
@@ -754,33 +805,38 @@
             });
         }
 
-        // draw circles
-
-        var circles = svg.append("g")
-                .attr("class", "circles")
-                .selectAll("circle")
-                .data(data)
-                .enter()
-                .append("circle")
-                .attr("r", radius)
-                .attr("opacity", 0.2)
-                .attr("cx", function(d) { return d.x; })
-                .attr("cy", function(d) { return d.y; })
-                .attr("fill", function(d) {
-                    d.color = defaultColor;
-                    return d.color
-                })
-                .on("mouseover", function(d) {
-                         console.log(d.location + " at " + d.posx + "," + d.posy)
-                     });
-
-        baseSim(0.1);
-        updateNodes();
-
 
         // define trigger functions
 
         var triggerState;
+        var circles;
+
+
+        window._pre_trigger0 = function(){
+            removeTitlePage();
+            // draw circles
+            circles = svg.append("g")
+                    .attr("class", "circles")
+                    .selectAll("circle")
+                    .data(data)
+                    .enter()
+                    .append("circle")
+                    .attr("r", radius)
+                    .attr("opacity", 0.2)
+                    .attr("cx", function(d) { return d.x; })
+                    .attr("cy", function(d) { return d.y; })
+                    .attr("fill", function(d) {
+                        d.color = defaultColor;
+                        return d.color
+                    })
+                    .on("mouseover", function(d) {
+                        console.log(d.location + " at " + d.posx + "," + d.posy)
+                    });
+
+            baseSim(0.1);
+            updateNodes();
+            setText("This is a test of the text");
+        };
 
         window._pre_trigger1 = function() {
             var filterIn = function(d) { return d.bogus == "False" && d.position != false};
@@ -995,7 +1051,7 @@
 
         };
 
-        var triggers = [window._pre_trigger1, window._pre_trigger2,window._pre_trigger3,window._pre_trigger4, window._pre_trigger5,
+        var triggers = [window._pre_trigger0,window._pre_trigger1, window._pre_trigger2,window._pre_trigger3,window._pre_trigger4, window._pre_trigger5,
             window._post_trigger1,window._post_trigger2,window._post_trigger3,window._post_trigger4,window._post_trigger5,window._post_trigger6];
 
         var navCount = -1;
