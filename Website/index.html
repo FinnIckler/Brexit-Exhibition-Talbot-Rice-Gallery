@@ -66,8 +66,8 @@
 <p>This data set comes from the Neuropolitics Research Lab at the University of Edinburgh, a transdisciplinary research centre that utilises developments in cognitive neurosciences to shed light on new political attitudes, identities and behaviours. Their aim with providing this large data set was to provide new insights into how citizens’ Brexit-related expectations are shaped in a digital world. How have their expectations about Brexit changed? Have their expectations changed from when they voted? What are the perceptions of digital authenticity and trust?
     <br><br>
     Brexit-related Tweets in this visualisation come from the following days:
-    Pre-Referendum (21-22 June 2016)
     Referendum (23 June 2016)
+    Pre-Referendum (21-22 June 2016)
     Post- Referendum (22-23 September 2017, Florence Speech)</p></div>
 <div id="text">
     <p id="text-p">Eine wunderbare Heiterkeit hat meine ganze Seele eingenommen, gleich den süßen Frühlingsmorgen, die ich mit ganzem Herzen genieße. Ich bin allein und freue mich meines
@@ -217,50 +217,6 @@
             }else{
                 return "#CC33FF";
             }
-
-//            var country = "";
-//            if(location.indexOf(',') != -1){
-//               country = location.split(",")[1].substr(1)
-//            }else{
-//                country = location
-//            }
-//            switch (country){
-//                case "United Kingdom":
-//                case "England":
-//                case "Wales":
-//                case "Scotland":
-//                case "France":
-//                case "Germany":
-//                case "Spain":
-//                case "Ireland":
-//                case "Belgium":
-//                case "Netherlands":
-//                case "Italy":
-//                case "Sweden":
-//                case "Greece":
-//                case "Poland":
-//                case "Catalunya":
-//                case "Denmark":
-//                    return "#3366cc";
-//                case "United States":
-//                case "Canada":
-//                case "Mexico":
-//                    return "#CC33FF";
-//                case "India":
-//                case "Singapore":
-//                case "Thailand":
-//                case "China":
-//                case "UAE":
-//                    return "#ccff66";
-//                case "Australia":
-//                    return "#ff6633";
-//                case "South Africa":
-//                case "Nigeria":
-//                    return "#996666";
-//                default:
-//                    return "#FFFFFF"
-//            }
-
         }
 
 
@@ -846,7 +802,7 @@
             removeNames();
             replaceData("pre",baseSim);
             triggerState = "base";
-            setText("These are all Twitter accounts posting about Brexit before the referendum.");
+            setText("These are all Twitter accounts posting about Brexit before the referendum. ");
         };
 
         window._pre_trigger1 = function() {
@@ -881,7 +837,7 @@
             fade(function (d) {
                 return d.bogus == "False" && d.position == false;
             });
-            setText("For this instance, we eliminated all users that did not list a location on their profile.");
+            setText("We eliminated all users that did not list a location on their profile.");
         };
 
         window._pre_trigger2 = function() {
@@ -911,7 +867,7 @@
                     })
                 }
             }
-            setText("We then removed all users with unrecognisable locations.")
+            setText("Again, we also removed all users with unrecognisable locations.")
         };
 
 
@@ -921,7 +877,7 @@
             splitMap();
             highlightCountries();
             updateNodes();
-            setText("Here we can visualise all users with a validated location. The majority are located in Europe and North America, however there are a few outliers in other parts of the world.")
+            setText("In this map, the majority of users are located in Europe and North America, however there are a few outliers in other parts of the world.")
         };
 
         window._pre_trigger4 = function() {
@@ -940,7 +896,7 @@
                 age("")
             }
             triggerState = "age";
-            setText("Using the whole sample of users, we now re-arrange them according to account creation date. A large number of accounts were created the same day they tweeted (0 months).")
+            setText("A large number of accounts were created the same day they tweeted. (date displayed in number months)")
         };
 
         window._pre_trigger5 = function() {
@@ -951,7 +907,7 @@
                 triggerState = "age"
             }
             age("pre");
-            setText("The top ten biggest influencers, the most retweeted users, varied in message. However, the top two were pro-Brexit and their accounts were recently created.")
+            setText("Before the referendum, the top ten biggest influencers varied in message. However, the top two were pro-Brexit and their accounts were recently created")
         };
 
         window._during_trigger1 = function(){
@@ -977,7 +933,7 @@
 
             baseSim(0.1);
             updateNodes();
-            setText("These are all Twitter accounts posting about Brexit during the referendum. This is our largest data set with over half a million accounts.  Each dot represents 100 user accounts.")
+            setText("These are all Twitter accounts posting about Brexit during the referendum. This is our largest data set with over half a million accounts.  Each dot represents 100 users.")
         };
 
         window._during_trigger2 = function() {
@@ -1012,7 +968,7 @@
             fade(function (d) {
                 return d.bogus == "False" && d.position == false;
             });
-            setText("We eliminated all users that did not list a location on their profile.")
+            setText("We started by eliminating all users that did not list a location on their profile.")
         };
 
         window._during_trigger3 = function() {
@@ -1042,7 +998,7 @@
                     })
                 }
             }
-            setText("We removed all users with unrecognisable locations.")
+            setText("We then removed all users with unrecognisable locations.")
         };
 
 
@@ -1052,7 +1008,7 @@
             splitMap();
             highlightCountries();
             updateNodes();
-            setText("Here we can visualise all users with a validated location. There are more represented locations in this set, thus showing how active Twitter was during the referendum. ")
+            setText("Here we map all users with a validated location. The majority of tweets originate from Europe and North America, but we can also see a reaction to the results from various countries around the world. ")
         };
 
         window._during_trigger5 = function() {
@@ -1071,7 +1027,7 @@
                 age("")
             }
             triggerState = "age";
-            setText("Like pre-referendum, the majority of the accounts tweeting were created in the same day that they tweeted. ")
+            setText("Using the whole sample of users, we now re-arrange them according to account creation date. The dates vary, but the majority of the accounts were created in the same day that they were tweeting. (date displayed in number months)")
 
         };
         window._during_trigger6 = function() {
@@ -1087,7 +1043,7 @@
                 age("during")
             }
             triggerState = "age";
-            setText("XXXX")
+            setText("These are the top ten biggest influencers, the most retweeted users, on the referendum day. Six of these accounts are pro-Brexit. @Mis Standen (sixth place) is a Dutch politician account that promotes racism and hatred, thus showing how such polarised positions can generate a big impact in the digital world. ")
         };
 
         window._post_trigger1 = function () {
@@ -1158,7 +1114,7 @@
                     })
                 }
             }
-            setText("We then removed all users with unrecognisable locations.")
+            setText("And  removed all users with unrecognisable locations.")
         };
 
 
@@ -1168,7 +1124,7 @@
             splitMap();
             highlightCountries();
             updateNodes();
-            setText("Here we can visualise all users with a validated location. The majority are located in Europe and in this case, the outliers are in North America.")
+            setText("The majority of users are located in Europe and in this case, the outliers are in North America.")
         };
 
         window._post_trigger5 = function() {
@@ -1209,7 +1165,7 @@
         window._trigger_final = function () {
             circles.transition().duration(2000).attr('opacity',0);
             addEndPage();
-            setText("Across all data sets, a large majority of accounts were created on the same day they were tweeting. The biggest influencers were pro-Brexit and we hypothesize many of their accounts were solely created for campaign purposes, rather than “real” users expressing their opinions. We also wonder if the leave-campaigners were substantially more active on Twitter, rather than remain-backers, thus influencing public opinion on a large scale. A year after the referendum, the biggest influencers have shifted, and now users on Twitter favour a remain position")
+            setText("Across all data sets, a large majority of accounts were created on the same day they were tweeting. The biggest influencers were pro-Brexit and we hypothesize many of their accounts were solely created for campaign purposes, rather than “real” users expressing their opinions. We also wonder if the leave-campaigners were substantially more active on Twitter, rather than remain-backers, thus influencing public opinion on a large scale. A year after the referendum, the biggest influencers have shifted, and now users on Twitter favour a remain position.")
 
         };
         var triggers = [window._during_trigger1,window._during_trigger2,window._during_trigger3,window._during_trigger4,window._during_trigger5,window._during_trigger6,
