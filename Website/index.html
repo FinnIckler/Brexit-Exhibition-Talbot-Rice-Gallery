@@ -228,7 +228,6 @@
             /* creates basic petri dish of nodes */
 
             removeForces();
-            radius = 1;
 
             simulation
                     .stop()
@@ -358,6 +357,7 @@
                     .transition()
                     .duration(1500)
                     .attr("opacity", function(d) { return d.fade })
+                    .attr("r",function(d){return radius})
                     .attr("fill", function(d) { return d.position != false ? getColor(d.position) : "white"})
                     .attr("cy", function(d) {
                         // manually update d.x to let simulation know x has changed
@@ -645,6 +645,29 @@
             document.getElementById("text-p").style.textAlign = "justify";
 
         }
+        function clearEndPage(){
+            var getHashtagColor = function (innerText) {
+                return "white"
+            };
+            [].forEach.call(document.getElementsByClassName("divs-0"), function (el) {
+                el.style.visibility = "hidden";
+                el.style.right = "21.1%";
+                el.style.color = getHashtagColor(el.childNodes[1].innerText);
+            });
+            [].forEach.call(document.getElementsByClassName("divs-2"), function (el) {
+                el.style.visibility = "hidden";
+                el.style.right = "21.1%";
+                el.style.color = getHashtagColor(el.childNodes[1].innerText);
+            });
+            [].forEach.call(document.getElementsByClassName("divs-1"), function (el) {
+                el.style.visibility = "hidden";
+                el.style.right = "21.1%";
+                el.style.color = getHashtagColor(el.childNodes[1].innerText);
+            });
+            document.getElementById("text").style.left = "0";
+            document.getElementById("text-p").style.textAlign = "right";
+
+        }
         function age(day) {
 
             var filterFunction = function(d) {
@@ -866,14 +889,20 @@
         var circles;
 
 
-        window._pre_trigger0 = function () {
-            removeNames();
-            replaceData("pre",baseSim);
+        window._pre_trigger1 = function () {
+            highlight(function(d) { return false; });
+            fade(function(d) { return false; });
+            if (triggerState != "base"){
+                removeNames();
+                replaceData("pre",baseSim);
+            }
             triggerState = "base";
+            baseSim(0.1);
+            updateNodes();
             setText("These are all Twitter accounts posting about Brexit before the referendum. ");
         };
 
-        window._pre_trigger1 = function() {
+        window._pre_trigger2 = function() {
             var filterIn = function(d) { return d.bogus == "False" && d.position != false};
             var filterOut = function(d) { return d.bogus == "False" && d.position == false };
 
@@ -906,9 +935,10 @@
                 return d.bogus == "False" && d.position == false;
             });
             setText("We eliminated all users that did not list a location on their profile.");
+            triggerState = "base";
         };
 
-        window._pre_trigger2 = function() {
+        window._pre_trigger3 = function() {
             document.getElementById("viz").style.background = "#000000";
             var filterIn = function(d) { return d.position != false};
             var filterOut = function(d) { return d.position == false };
@@ -935,20 +965,21 @@
                     })
                 }
             }
-            setText("Again, we also removed all users with unrecognisable locations.")
+            setText("Again, we also removed all users with unrecognisable locations.");
         };
 
 
-        window._pre_trigger3 = function() {
+        window._pre_trigger4 = function() {
             document.getElementById("viz").style.background = "#000000 url('images/worldmap_1920.svg') no-repeat";
             fade(function(d) { return d.position == false });
             splitMap();
             highlightCountries();
             updateNodes();
             setText("In this map, the majority of users are located in Europe and North America, however there are a few outliers in other parts of the world.")
+            triggerState = "map";
         };
 
-        window._pre_trigger4 = function() {
+        window._pre_trigger5 = function() {
             top10_data = false;
             top10 = [false,false,false,false,false,false,false,false,false,false];
             document.getElementById("viz").style.background = "#000000";
@@ -958,47 +989,60 @@
             if (triggerState != "age") {
                 updateNodes();
                 baseSim(0.7).on("end", function() {
-                    age("")
+                    age("");
                 })
             } else {
+                removeNames();
+                NameState--;
                 age("")
             }
             triggerState = "age";
             setText("Some accounts were created the same day they tweeted. (date displayed in number months)")
         };
 
-        window._pre_trigger5 = function() {
-            highlight(function(d) { return false});
-            fade(function(d) { return false });
-
-            if (triggerState != "age") {
-                triggerState = "age"
+        window._pre_trigger6 = function() {
+            highlight(function(d) { return false; });
+            fade(function(d) { return false; });
+            if (triggerState == "base"){
+                replaceData("pre")
             }
-            age("pre");
+            if (triggerState != "age") {
+                updateNodes();
+                baseSim(0.7).on("end", function() {
+                    age("pre")
+                })
+            } else {
+                age("pre")
+            }
+            triggerState = "age";
             setText("Before the referendum, the top ten biggest influencers varied in message. However, the top two were pro-Brexit and their accounts were recently created")
         };
 
         window._during_trigger1 = function(){
-            removeTitlePage();
-            // draw circles
-            circles = svg.append("g")
-                    .attr("class", "circles")
-                    .selectAll("circle")
-                    .data(data)
-                    .enter()
-                    .append("circle")
-                    .attr("r", radius)
-                    .attr("opacity", 0.2)
-                    .attr("cx", function(d) { return d.x; })
-                    .attr("cy", function(d) { return d.y; })
-                    .attr("fill", function(d) {
-                        d.color = defaultColor;
-                        return d.color
-                    })
-                    .on("mouseover", function(d) {
-                        console.log(d.location + " at " + d.position)
-                    });
-
+            highlight(function(d) { return false; });
+            fade(function(d) { return false; });
+            if(triggerState != "base"){
+                removeTitlePage();
+                // draw circles
+                circles = svg.append("g")
+                        .attr("class", "circles")
+                        .selectAll("circle")
+                        .data(data)
+                        .enter()
+                        .append("circle")
+                        .attr("r", radius)
+                        .attr("opacity", 0.2)
+                        .attr("cx", function(d) { return d.x; })
+                        .attr("cy", function(d) { return d.y; })
+                        .attr("fill", function(d) {
+                            d.color = defaultColor;
+                            return d.color
+                        })
+                        .on("mouseover", function(d) {
+                            console.log(d.location + " at " + d.position)
+                        });
+            }
+            triggerState = "base";
             baseSim(0.1);
             updateNodes();
             setText("These are all Twitter accounts posting about Brexit during the referendum. This is our largest data set with over half a million accounts.  Each dot represents 100 users.")
@@ -1036,7 +1080,8 @@
             fade(function (d) {
                 return d.bogus == "False" && d.position == false;
             });
-            setText("We started by eliminating all users that did not list a location on their profile.")
+            setText("We started by eliminating all users that did not list a location on their profile.");
+            triggerState = "base";
         };
 
         window._during_trigger3 = function() {
@@ -1077,6 +1122,7 @@
             highlightCountries();
             updateNodes();
             setText("Here we map all users with a validated location. The majority of tweets originate from Europe and North America, but we can also see a reaction to the results from various countries around the world. ")
+            triggerState = "map";
         };
 
         window._during_trigger5 = function() {
@@ -1092,6 +1138,8 @@
                     age("")
                 })
             } else {
+                removeNames();
+                NameState--;
                 age("")
             }
             triggerState = "age";
@@ -1101,7 +1149,9 @@
         window._during_trigger6 = function() {
             highlight(function(d) { return false; });
             fade(function(d) { return false; });
-
+            if (triggerState == "base"){
+                replaceData("during")
+            }
             if (triggerState != "age") {
                 updateNodes();
                 baseSim(0.7).on("end", function() {
@@ -1115,8 +1165,12 @@
         };
 
         window._post_trigger1 = function () {
-            removeNames();
-            replaceData("post",baseSim);
+            highlight(function(d) { return false; });
+            fade(function(d) { return false; });
+            if(triggerState != "base"){
+                removeNames();
+                replaceData("post",baseSim);
+            }
             triggerState = "base";
             setText("These are all Twitter accounts posting about Brexit after the referendum, during the Florence Speech. ")
         };
@@ -1208,6 +1262,8 @@
                     age("")
                 })
             } else {
+                removeNames();
+                NameState--;
                 age("")
             }
             triggerState = "age";
@@ -1217,7 +1273,9 @@
         window._post_trigger6 = function() {
             highlight(function(d) { return false; });
             fade(function(d) { return false; });
-
+            if (triggerState == "end"){
+                clearEndPage();
+            }
             if (triggerState != "age") {
                 updateNodes();
                 baseSim(0.7).on("end", function() {
@@ -1232,12 +1290,13 @@
         };
         window._trigger_final = function () {
             circles.transition().duration(2000).attr('opacity',0);
+            removeNames();
             addEndPage();
             setText("Across all data sets, a large majority of accounts were created on the same day they were tweeting. The biggest influencers were pro-Brexit and we hypothesize many of their accounts were solely created for campaign purposes, rather than “real” users expressing their opinions. We also wonder if the leave-campaigners were substantially more active on Twitter, rather than remain-backers, thus influencing public opinion on a large scale. A year after the referendum, the biggest influencers have shifted, and now users on Twitter favour a remain position.")
-
+            triggerState = "end"
         };
         var triggers = [window._during_trigger1,window._during_trigger2,window._during_trigger3,window._during_trigger4,window._during_trigger5,window._during_trigger6,
-            window._pre_trigger0,window._pre_trigger1, window._pre_trigger2,window._pre_trigger3,window._pre_trigger4, window._pre_trigger5,
+            window._pre_trigger1,window._pre_trigger2, window._pre_trigger3,window._pre_trigger4,window._pre_trigger5, window._pre_trigger6,
             window._post_trigger1,window._post_trigger2,window._post_trigger3,window._post_trigger4,window._post_trigger5,window._post_trigger6,window._trigger_final];
 
         var navCount = -1;
@@ -1246,14 +1305,12 @@
                 .on("click", function() {
                     navCount -= 1;
                     triggers[navCount]();
-                    console.log(navCount)
                 });
 
         d3.select("#right")
                 .on("click", function() {
                     navCount += 1;
                     triggers[navCount]();
-                    console.log(triggers[navCount])
                 });
 
 
