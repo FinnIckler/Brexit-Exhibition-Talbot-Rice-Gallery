@@ -98,6 +98,10 @@
     var height = 700;
     var width = 1219;
 
+    var during_data;
+    var pre_data;
+    var post_data;
+
     var margin = {top: height*0.1, right: width * 0.08, bottom: height * 0.06, left: width * 0.08};
 
     width = width - margin.left - margin.right;
@@ -134,7 +138,7 @@
     var top10 = [false,false,false,false,false,false,false,false,false,false];
     d3.csv("during_brexit_data.csv", function(error, data) {
         if (error) throw error;
-
+        during_data = data;
         data.forEach(function(d) {
             d.fade = 1;
             d.color = defaultColor;
@@ -742,34 +746,31 @@
         }
 
         function replaceData(s,callback) {
-            d3.csv(s+"_brexit_data.csv", function(error, new_data) {
-                new_data.forEach(
-                        function (d) {
-                            d.fade = 1;
-                            d.color = defaultColor;
-                            d.age = Math.floor(d.age / 60 / 60 / 24 / 30);
-                            if (d.position == "" || typeof(d.position) == "undefined"){
-                                d.position = false
-                            }else{
-                                var lat = Number(d.position.split(',')[0].split('(')[1]); //* Math.PI / 180;
-                                var long = Number(d.position.split(',')[1].split(')')[0]); //* Math.PI / 180;
-                                var mapWidth    = divWidth - 74;
-                                var mapHeight   = divHeight - 238;
-                                var PI = Math.PI;
-                                var log = Math.log;
-                                var tan = Math.tan;
-                                //166
-                                var x = (long+180 - 30)*(mapWidth/360);
-                                // convert from degrees to radians
-                                var latRad = lat*PI/180;
-                                var mercN = log(tan((PI/4)+(latRad/2)));
-                                d.posy = (mapHeight/2)-(mapWidth*mercN/(2*PI)) + 100;
-                                d.posx = x;
-                            }
-                        }
-                );
-//                svg.selectAll("g").remove();
-                data = new_data;
+            var preloaded = false;
+            switch (s){
+                case "during": {
+                    if (typeof(during_data) != "undefined") {
+                        data = during_data;
+                        preloaded = true
+                    }
+                    break;
+                }
+                case "pre":{
+                    if (typeof(pre_data) != "undefined") {
+                        data = pre_data;
+                        preloaded = true
+                    }
+                    break;
+                }
+                case "post":{
+                    if (typeof(post_data) != "undefined") {
+                        data = post_data;
+                        preloaded = true
+                    }
+                    break;
+                }
+            }
+            if (preloaded){
                 simulation
                         .nodes(data)
                         .on("tick", ticked);
@@ -781,14 +782,81 @@
                         .attr("r", radius);
 
                 circle
-                        .attr("cx", function(d) { return width / 4 * 3; })
+                        .attr("cx", function (d) {
+                            return width / 4 * 3;
+                        })
                         .attr("r", radius)
-                        .attr("cy", function(d) { return height / 2; });
+                        .attr("cy", function (d) {
+                            return height / 2;
+                        });
 
                 circle.exit().remove();
                 baseSim(0.1);
                 updateNodes();
-            });
+            }
+            else {
+                d3.csv(s + "_brexit_data.csv", function (error, new_data) {
+                    new_data.forEach(
+                            function (d) {
+                                d.fade = 1;
+                                d.color = defaultColor;
+                                d.age = Math.floor(d.age / 60 / 60 / 24 / 30);
+                                if (d.position == "" || typeof(d.position) == "undefined") {
+                                    d.position = false
+                                } else {
+                                    var lat = Number(d.position.split(',')[0].split('(')[1]); //* Math.PI / 180;
+                                    var long = Number(d.position.split(',')[1].split(')')[0]); //* Math.PI / 180;
+                                    var mapWidth = divWidth - 74;
+                                    var mapHeight = divHeight - 238;
+                                    var PI = Math.PI;
+                                    var log = Math.log;
+                                    var tan = Math.tan;
+                                    //166
+                                    var x = (long + 180 - 30) * (mapWidth / 360);
+                                    // convert from degrees to radians
+                                    var latRad = lat * PI / 180;
+                                    var mercN = log(tan((PI / 4) + (latRad / 2)));
+                                    d.posy = (mapHeight / 2) - (mapWidth * mercN / (2 * PI)) + 100;
+                                    d.posx = x;
+                                }
+                            }
+                    );
+                    switch (s) {
+                        case "pre" :
+                            pre_data = new_data;
+                            break;
+                        case "post":
+                            post_data = new_data;
+                            break;
+                        case "during":
+                            during_data = new_data;
+                            break;
+                    }
+                    data = new_data;
+                    simulation
+                            .nodes(data)
+                            .on("tick", ticked);
+                    initSim();
+                    var circle = svg.selectAll("circle")
+                            .data(data);
+
+                    circle.enter().append("circle")
+                            .attr("r", radius);
+
+                    circle
+                            .attr("cx", function (d) {
+                                return width / 4 * 3;
+                            })
+                            .attr("r", radius)
+                            .attr("cy", function (d) {
+                                return height / 2;
+                            });
+
+                    circle.exit().remove();
+                    baseSim(0.1);
+                    updateNodes();
+                });
+            }
         }
 
 
