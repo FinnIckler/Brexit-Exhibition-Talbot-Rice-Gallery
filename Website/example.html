@@ -186,17 +186,17 @@ d3.csv("/dummydata.csv", function(error, data) {
 
                 simulation
                     .force("x" + i.toString(), customX)
-                    .force("y" + i.toString(), customY)
-                activeForces.push("x" + i.toString())
-                activeForces.push("y" + i.toString())
+                    .force("y" + i.toString(), customY);
+                activeForces.push("x" + i.toString());
+                activeForces.push("y" + i.toString());
 
                 break;
 
             case "charge":
                 var customCharge = isolate(d3.forceManyBody(), breakdownObjects[i]["filter"]).strength(breakdownObjects[i]["strength"])
                 simulation
-                    .force("charge" + i.toString(), customCharge)
-                activeForces.push("charge" + i.toString())
+                    .force("charge" + i.toString(), customCharge);
+                activeForces.push("charge" + i.toString());
 
                 break;
             }
