@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="style/tweet.css">
+    <script>
+        function getParamValue(paramName)
+        {
+            var url = window.location.search.substring(1); //get rid of "?" in querystring
+            var qArray = url.split('&'); //get key-value pairs
+            for (var i = 0; i < qArray.length; i++)
+            {
+                var pArr = qArray[i].split('='); //split key and value
+                if (pArr[0] == paramName)
+                    return decodeURIComponent(pArr[1]); //return value
+            }
+        }
+        window.onload = function () {
+            //Front
+
+            document.getElementById("username").innerHTML = getParamValue("username");
+            document.getElementById("screenName").innerHTML = getParamValue("screenName");
+            document.getElementById("retweets").innerHTML = getParamValue("retweets");
+            document.getElementById("text").innerHTML = getParamValue("text") == "" ? "No original tweet" : getParamValue("text");
+            document.getElementById("avatar").src = getParamValue("image");
+
+            if (getParamValue("verified") != "True"){
+                document.getElementById("verified").style.display = "none" ;
+                document.getElementById("verified-2").style.display = "none" ;
+            }
+
+            //Back
+            if(getParamValue("new_time") == "deleted"){
+                document.getElementById("username-2").innerHTML = getParamValue("username");
+                document.getElementById("screenName-2").innerHTML = getParamValue("screenName");
+                document.getElementById("avatar-2").src = getParamValue("image");
+                document.getElementById("text-2").innerHTML =  "This account was deleted, banned or renamed"
+
+            }else{
+                document.getElementById("username-2").innerHTML = getParamValue("username");
+                document.getElementById("screenName-2").innerHTML = getParamValue("screenName");
+                document.getElementById("retweets-2").innerHTML = getParamValue("new_retweets");
+                document.getElementById("avatar-2").src = getParamValue("image");
+                document.getElementById("time").innerHTML = getParamValue("new_time");
+                document.getElementById("text-2").innerHTML =  getParamValue("new_text");
+            }
+
+        }
+    </script>
+    <style>
+        #avatar, #avatar-2{
+            filter: blur(5px);
+        }
+    </style>
+</head>
+<body>
+<div class="flip-container" onClick="if(this.classList.contains('hover')){this.classList.remove('hover')}else{this.classList.add('hover')}">
+<div class="flipper">
+    <div class="front">
+        <div class="EmbeddedTweet EmbeddedTweet--edge EmbeddedTweet--mediaForward media-forward js-clickToOpenTarget js-tweetIdInfo tweet-InformationCircle-widgetParent" id="twitter-widget-0" lang="en">
+            <div class="EmbeddedTweet-tweet">
+                <blockquote class="Tweet h-entry js-tweetIdInfo subject expanded">
+                    <div class="Tweet-header">
+                        <a class="TweetAuthor-avatar Identity-avatar u-linkBlend" href="#">
+                            <img class="Avatar Avatar--edge" src="https://pbs.twimg.com/profile_images/432081479/DOI_LOGO_bigger.jpg" id="avatar">
+                        </a>
+                        <div class="TweetAuthor js-inViewportScribingTarget">
+                            <a class="TweetAuthor-link Identity u-linkBlend" href="#">
+                                <div class="TweetAuthor-nameScreenNameContainer">
+                        <span class="TweetAuthor-decoratedName">
+                            <span class="TweetAuthor-name Identity-name customisable-highlight" id="username"></span>
+                            <span class="TweetAuthor-verifiedBadge" id="verified">
+                                <div class="Icon Icon--verified"></div>
+                                <b class="u-hiddenVisually">✔</b>
+                            </span>
+                        </span>
+                                    <span class="TweetAuthor-screenName Identity-screenName" id="screenName"></span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="Tweet-brand">
+                         <span>Then<span/>
+                            <a href="#">
+                        <span class="FollowButton-bird">
+                            <div class="Icon Icon--twitter"></div>
+                        </span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="Tweet-body e-entry-content">
+                        <p class="Tweet-text e-entry-title" id="text"><a href="#" class="PrettyLink profile customisable h-card"><span class="PrettyLink-prefix">@</span><span class="PrettyLink-value Tweet-prettyLink">GrandTetonNPS</span></a> <a href="#" class="PrettyLink hashtag customisable"><span class="PrettyLink-prefix">#</span><span class="PrettyLink-value Tweet-prettyLink">nature</span></a> <a href="#" class="PrettyLink hashtag customisable"><span class="PrettyLink-prefix">#</span><span class="PrettyLink-value Tweet-prettyLink">sunset</span></a></p>
+                        <div class="Tweet-metadata dateline">
+                            <a class="u-linkBlend u-url customisable-highlight long-permalink" href="#">
+                                <time class="dt-updated" >June 22, 2016</time>
+                            </a>
+                        </div>
+                        <ul class="Tweet-actions Tweet-action--newsActions">
+                            <li class="Tweet-action Tweet-action--newsAction">
+                                <a class="Tweet-action--heart TweetAction TweetAction--heartEdge"href="#">
+                                    <div class="Icon Icon--retweetEdge TweetAction-icon"></div>
+                                    <span class="TweetAction-stat" id="retweets"></span>
+                                </a>
+                            </li>
+                            <li class="Tweet-action Tweet-action--newsAction">
+                                <a class="Tweet-action--replyEdge TweetAction TweetAction--replyEdge" href="#">
+                                    <div class="Icon Icon--replyEdge TweetAction-icon"></div>
+                                    <span class="TweetAction-stat">The whole UK is talking about this</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </blockquote>
+            </div>
+        </div>
+    </div>
+    <div class="back">
+        <div class="EmbeddedTweet EmbeddedTweet--edge EmbeddedTweet--mediaForward media-forward js-clickToOpenTarget js-tweetIdInfo tweet-InformationCircle-widgetParent" id="twitter-widget-1" lang="en">
+            <div class="EmbeddedTweet-tweet">
+                <blockquote class="Tweet h-entry js-tweetIdInfo subject expanded">
+                    <div class="Tweet-header">
+                        <a class="TweetAuthor-avatar Identity-avatar u-linkBlend" href="#">
+                            <img class="Avatar Avatar--edge" src="https://pbs.twimg.com/profile_images/432081479/DOI_LOGO_bigger.jpg" id="avatar-2">
+                        </a>
+                        <div class="TweetAuthor js-inViewportScribingTarget">
+                            <a class="TweetAuthor-link Identity u-linkBlend" href="#">
+                                <div class="TweetAuthor-nameScreenNameContainer">
+                        <span class="TweetAuthor-decoratedName">
+                            <span class="TweetAuthor-name Identity-name customisable-highlight" id="username-2"></span>
+                            <span class="TweetAuthor-verifiedBadge" id="verified-2">
+                                <div class="Icon Icon--verified"></div>
+                                <b class="u-hiddenVisually">✔</b>
+                            </span>
+                        </span>
+                                    <span class="TweetAuthor-screenName Identity-screenName" id="screenName-2"></span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="Tweet-brand">
+                            <span>Now<span/>
+                            <a href="#">
+                        <span class="FollowButton-bird">
+                            <div class="Icon Icon--twitter"></div>
+                        </span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="Tweet-body e-entry-content">
+                        <p class="Tweet-text e-entry-title" id="text-2"><a href="#" class="PrettyLink profile customisable h-card"><span class="PrettyLink-prefix">@</span><span class="PrettyLink-value Tweet-prettyLink">GrandTetonNPS</span></a> <a href="#" class="PrettyLink hashtag customisable"><span class="PrettyLink-prefix">#</span><span class="PrettyLink-value Tweet-prettyLink">nature</span></a> <a href="#" class="PrettyLink hashtag customisable"><span class="PrettyLink-prefix">#</span><span class="PrettyLink-value Tweet-prettyLink">sunset</span></a></p>
+                        <div class="Tweet-metadata dateline">
+                            <a class="u-linkBlend u-url customisable-highlight long-permalink" href="#">
+                                <time class="dt-updated" id="time" >June 22, 2016</time>
+                            </a>
+                        </div>
+                        <ul class="Tweet-actions Tweet-action--newsActions">
+                            <li class="Tweet-action Tweet-action--newsAction">
+                                <a class="Tweet-action--heart TweetAction TweetAction--heartEdge"href="#">
+                                    <div class="Icon Icon--retweetEdge TweetAction-icon"></div>
+                                    <span class="TweetAction-stat" id="retweets-2"></span>
+                                </a>
+                            </li>
+                            <li class="Tweet-action Tweet-action--newsAction">
+                                <a class="Tweet-action--replyEdge TweetAction TweetAction--replyEdge" href="#">
+                                    <div class="Icon Icon--replyEdge TweetAction-icon"></div>
+                                    <span class="TweetAction-stat">The whole UK was talking about this</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </blockquote>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>
