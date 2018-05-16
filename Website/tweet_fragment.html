@@ -16,34 +16,56 @@
                     return decodeURIComponent(pArr[1]); //return value
             }
         }
+        function censor(string){
+          var length = string.length;
+          var result = "";
+          var isHashtag = false;
+          for (var i = 0; i < length; i++){
+            if(string[i] === " "){
+              result += '█';
+              isHashtag = false;
+            }
+            else if(isHashtag){
+              result += string[i];
+            }
+            else if(string[i] === '#'){
+              result += string[i];
+              isHashtag = true;
+            }
+            else{
+              result += '█';
+            }
+          }
+          return result;
+        }
         window.onload = function () {
             //Front
 
-            document.getElementById("username").innerHTML = getParamValue("username");
-            document.getElementById("screenName").innerHTML = getParamValue("screenName");
+            document.getElementById("username").innerHTML = censor(getParamValue("username"));
+            document.getElementById("screenName").innerHTML = '@' + censor(getParamValue("screenName"));
             document.getElementById("retweets").innerHTML = getParamValue("retweets");
-            document.getElementById("text").innerHTML = getParamValue("text") == "" ? "No original tweet" : getParamValue("text");
-            document.getElementById("avatar").src = getParamValue("image");
+            document.getElementById("text").innerHTML = getParamValue("text") == "" ? "No original tweet" : censor(getParamValue("text"));
+            document.getElementById("avatar").src = 'images/default.png';
 
-            if (getParamValue("verified") != "True"){
+            if (getParamValue("verified") !== "True"){
                 document.getElementById("verified").style.display = "none" ;
                 document.getElementById("verified-2").style.display = "none" ;
             }
 
             //Back
-            if(getParamValue("new_time") == "deleted"){
-                document.getElementById("username-2").innerHTML = getParamValue("username");
-                document.getElementById("screenName-2").innerHTML = getParamValue("screenName");
-                document.getElementById("avatar-2").src = getParamValue("image");
+            if(getParamValue("new_time") === "deleted"){
+                document.getElementById("username-2").innerHTML = censor(getParamValue("username"));
+                document.getElementById("screenName-2").innerHTML = censor(getParamValue("screenName"));
+                document.getElementById("avatar-2").src = 'images/default.png';
                 document.getElementById("text-2").innerHTML =  "This account was deleted, banned or renamed"
 
             }else{
-                document.getElementById("username-2").innerHTML = getParamValue("username");
-                document.getElementById("screenName-2").innerHTML = getParamValue("screenName");
-                document.getElementById("retweets-2").innerHTML = getParamValue("new_retweets");
-                document.getElementById("avatar-2").src = getParamValue("image");
-                document.getElementById("time").innerHTML = getParamValue("new_time");
-                document.getElementById("text-2").innerHTML =  getParamValue("new_text");
+                document.getElementById("username-2").innerHTML = censor(getParamValue("username"));
+                document.getElementById("screenName-2").innerHTML = censor(getParamValue("screenName"));
+                document.getElementById("retweets-2").innerHTML = censor(getParamValue("new_retweets"));
+                document.getElementById("avatar-2").src = 'images/default.png';
+                document.getElementById("time").innerHTML = censor(getParamValue("new_time"));
+                document.getElementById("text-2").innerHTML =  censor(getParamValue("new_text"));
             }
 
         }
@@ -80,7 +102,7 @@
                             </a>
                         </div>
                         <div class="Tweet-brand">
-                         <span>Then<span/>
+                         <span>Then</span>
                             <a href="#">
                         <span class="FollowButton-bird">
                             <div class="Icon Icon--twitter"></div>
@@ -137,7 +159,7 @@
                             </a>
                         </div>
                         <div class="Tweet-brand">
-                            <span>Now<span/>
+                            <span>Now</span>
                             <a href="#">
                         <span class="FollowButton-bird">
                             <div class="Icon Icon--twitter"></div>

@@ -18,22 +18,23 @@
 <div id="viz"></div>
 <div id="timer">10:00</div>
 <div id="breaking-header"><div id="breaking-text"><h2>NEWS</h2><h1>BREAKING</h1></div></div>
-<div class="ticker-wrap" id="breaking">
+<!-- <div class="ticker-wrap" id="breaking">
     <div class="ticker">
-        <div class="ticker__item">22516 tweets from the 571 user with more than 100 retweets on the 22.6.2016</div>
-        <div class="ticker__item">On average 15 unique users were retweeted</div>
-        <div class="ticker__item">39 tweets were sent by each user on average, 20 of those were original content</div>
-        <div class="ticker__item">19 of the most retweeted users provided no original content on the day before brexit</div>
-        <div class="ticker__item">53% of all tweets where original content, 47% were retweets.</div>
-        <div class="ticker__item">Large Number of Accounts created Same Day Tweeted</div>
-        <div class="ticker__item">Top Two Biggest Influencers were Pro-Brexit</div>
-        <div class="ticker__item">Out of the 571 Users 307 favoured Leave, 179 Remain and 85 stayed neutral</div>
-        <div class="ticker__item">Majority of Brexit Twitter Users located in Europe and North America</div>
-        <div class="ticker__item">Populist politicians under the most retweeted users</div>
-        <div class="ticker__item">110 of the accounts have now been deleted, renamed or banned</div>
+      <div class="ticker__item">On the 22.6.2016, the day before the Brexit vote, there were 571 users with more than 100 retweets</div>
+      <div class="ticker__item">This 571 users sent a total of 22516 tweets throughout the day</div>
+      <div class="ticker__item">On average, each of the users retweeted 15 other unique users</div>
+      <div class="ticker__item">Each user posted an average of 39 tweets, with 20 of those being original content</div>
+      <div class="ticker__item">19 of the 571 users provided no original content on the day</div>
+      <div class="ticker__item">53% of all tweets were original content, 47% were retweets</div>
+      <div class="ticker__item">Out of the 571 users 307 favoured Leave, 179 Remain, and 85 stayed neutral</div>
+      <div class="ticker__item">The top two biggest influencers were pro-Brexit</div>
+      <div class="ticker__item">Populist politicians under the most retweeted users</div>
+      <div class="ticker__item">110 of the accounts have now been deleted, renamed or banned</div>
+      <div class="ticker__item">A large number of new Twitter accounts were created on the 22.6.2016, and many tweeted about the Brexit vote</div>
+      <div class="ticker__item">The majority of Twitter users tweeting about Brexit were located in Europe and North America</div>
     </div>
-</div>
-<div id="vote-button"><button onclick='document.getElementById("voting").style.display = "block"; this.style.display = "none";removeTweet()'>Vote</button></div>
+</div> -->
+<!-- <div id="vote-button"><button onclick='document.getElementById("voting").style.display = "block"; this.style.display = "none";removeTweet()'>Vote</button></div>
 <div id="voting">
     <div id="vote-text">How would you vote today?</div>
     <button style="background-color: #094178" onclick="reset('remain')">Remain</button>
@@ -44,7 +45,7 @@
         <button onclick="document.getElementById('vote-button').style.display = 'none';
                          document.getElementById('voting').style.display = 'block';
                          document.getElementById('reset').style.display = 'none';
-                         removeTweet()">Vote</button></div>
+                         removeTweet()">Vote</button></div> -->
 <script>
     d3.csv("pre_brexit_data_new_new.csv", d3Sim);
 </script>

@@ -306,8 +306,8 @@ function d3Sim(error, data) {
     document.getElementById("viz").style.filter = "none";
     t = d3.interval(function(elapsed) {
       if (elapsed > 1000 * 30 && !breaking_active){
-        document.getElementById("breaking").style.display = "block";
-        document.getElementById("breaking-header").style.display = "block";
+        //document.getElementById("breaking").style.display = "block";
+        //document.getElementById("breaking-header").style.display = "block";
       }
       if (elapsed > last_checked + 1000 * 30){
         last_checked = elapsed;
@@ -318,7 +318,7 @@ function d3Sim(error, data) {
         }
       }
       if (elapsed > 1000 * 60 * 2 && !voting_active){
-          document.getElementById("vote-button").style.display = "block";
+          //document.getElementById("vote-button").style.display = "block";
       }
       if (elapsed > 1000 * 60 * 10){
         trigger_end();
@@ -378,7 +378,7 @@ function d3Sim(error, data) {
   var triggers = [window.trigger,window.trigger2,window.trigger3];
 
   window.trigger_end = function () {
-    document.getElementById("reset").style.display = "block";
+    //document.getElementById("reset").style.display = "block";
     document.getElementById("viz").style.filter = "blur(5px)";
     var t2 = d3.interval(function(elapsed) {
       if (elapsed > 1000 * 10){
@@ -399,14 +399,14 @@ function d3Sim(error, data) {
     initSim();
     svg.selectAll("*").remove();
     drawCircles();
-    document.getElementById("reset").style.display = "none";
-    document.getElementById("vote-button").style.display = "none";
-    document.getElementById("voting").style.display = "none";
+    //document.getElementById("reset").style.display = "none";
+    //document.getElementById("vote-button").style.display = "none";
+    //document.getElementById("voting").style.display = "none";
     t.stop();
     document.getElementById("start").style.display = "block";
     document.getElementById("viz").style.filter = "blur(5px)";
-    document.getElementById("breaking").style.display = "none";
-    document.getElementById("breaking-header").style.display = "none";
+    //document.getElementById("breaking").style.display = "none";
+    //document.getElementById("breaking-header").style.display = "none";
     breaking_active = false;
     voting_active = false;
     last_checked = 0;
